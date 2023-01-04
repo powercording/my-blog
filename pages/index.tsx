@@ -1,34 +1,18 @@
-import { useState } from 'react';
 import tw from 'tailwind-styled-components';
-import styled, { keyframes } from 'styled-components';
 
-const move = keyframes`
-50% {
-  opacity: 0;
-}
+const Container = tw.div`
+  flex;
+  ml-10
+  py-8
 `;
-const Masterdiv = styled.div<{ $textColor: boolean }>`
-  animation: ${move} 1s step-end infinite;
-`;
-const Container = tw(Masterdiv)`
-  ${props => (props.$textColor ? 'text-red-400' : 'text-blue-400')}
-bg-slate-200
-  w-auto
+const WelcomeWord = tw.h1`
+  font-extrabold
 `;
 
 export default function Home() {
-  const [textColor, setTextColor] = useState(true);
-
-  function changeColor() {
-    setTextColor(prev => !prev);
-  }
-
   return (
-    <>
-      <Container $textColor={textColor} className="h-80">
-        버튼클릭하면 색이 바뀝니다.
-      </Container>
-      <button onClick={changeColor}>버튼이에요</button>
-    </>
+    <Container>
+      <WelcomeWord>블로그 시작페이지 입니다.</WelcomeWord>
+    </Container>
   );
 }
