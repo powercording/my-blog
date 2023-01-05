@@ -12,11 +12,18 @@ const Container = tw.div`
   h-screen
 `;
 
+const ContentArea = tw.div`
+  py-10
+  px-8
+  w-full
+  
+`;
+
 export default function Layout({ children }: LayoutProps) {
   return (
     <Container>
       <Menu blogName="My-blog"></Menu>
-      {children}
+      <ContentArea>{children}</ContentArea>
     </Container>
   );
 }
