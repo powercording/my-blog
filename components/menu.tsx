@@ -22,7 +22,7 @@ const NameTag = tw.p`
 `;
 
 const Category = tw.div`
-border-red-500
+  border-red-500
   border-2
   mx-auto
   mt-5
