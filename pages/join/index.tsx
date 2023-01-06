@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import tw from 'tailwind-styled-components';
+import { useForm } from 'react-hook-form';
 
 const WELCOM_WORD =
   '🪄my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
@@ -67,6 +68,7 @@ export default function Join() {
   const [showingWord, setShowingWord] = useState('');
   const [welcomeDone, setWelcomeDone] = useState(false);
   const [emailDone, setEmailDone] = useState(false);
+  const { register, handleSubmit } = useForm();
 
   //useEffect for typing animation
   useEffect(() => {
@@ -99,11 +101,20 @@ export default function Join() {
     typingEffect();
   }, []);
 
+  const onSubmit = () => {
+    console.log('하이');
+  };
+
   return (
     <JoinFormContainer welcomeDone={welcomeDone} emailDone={emailDone}>
       <WelcomAnimation welcomeDone={welcomeDone}>{showingWord}</WelcomAnimation>
-      <JoinForm>
-        <CustomInput placeholder="이메일을 입력해주세요" />
+      <JoinForm onSubmit={handleSubmit(onSubmit)}>
+        <CustomInput
+          {...register('email', {
+            required: '이거입력해야하는데?',
+          })}
+          placeholder="이메일을 입력해주세요"
+        />
         <CustomInput
           placeholder="비밀번호를 입력해주세요"
           disabled={emailDone ? 'false' : 'true'}
