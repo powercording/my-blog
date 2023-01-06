@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import tw from 'tailwind-styled-components';
 
-const WELCOM_WORD = "환영합니다. next'js 로 만든my-Blog입니다.";
+const WELCOM_WORD =
+  '🪄my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
 
 const typeEffect = keyframes`
   50% {
@@ -10,7 +11,11 @@ const typeEffect = keyframes`
   }
 `;
 
-const WelcomAnimation = styled.div<{ welcomeDone: boolean }>`
+const WelcomAnimation = styled.div<{
+  welcomeDone: boolean;
+  emailDone?: boolean;
+}>`
+  transition: height 1s;
   &: after {
     content: ' ';
     border-right: 2px solid black;
@@ -19,26 +24,49 @@ const WelcomAnimation = styled.div<{ welcomeDone: boolean }>`
   }
 `;
 
-const WelcomeWord = tw(WelcomAnimation)``;
+function defineHeight(welcome: boolean, email: boolean) {
+  if (!email && !welcome) {
+    return 'h-14';
+  }
+  if (!email && welcome) {
+    return 'h-36';
+  }
+  if (email && welcome) {
+    return 'h-80';
+  }
+}
 
-const JoinFormContainer = tw.div`
-  shadow-md w-1/2
+const JoinFormContainer = tw(WelcomAnimation)`
+  w-auto px-4 py-4
+  space-y-10 overflow-hidden
+  shadow-md
+  ${props => defineHeight(props.welcomeDone, props.emailDone)}
 `;
 
-const joinFormEffect = styled.form<{ show: boolean }>`
-  transition: height 1s ease-in;
-`;
-
-const JoinForm = tw(joinFormEffect)`
+const JoinForm = tw.form`
   flex
   flex-col
-  ${props => (props.show ? 'h-48' : 'h-12')}
-  overflow-hidden
+  gap-3
+`;
+
+const InputExtends = styled.input.attrs(props => {
+  type: props.type || 'text';
+})``;
+
+const CustomInput = tw(InputExtends)`
+  w-auto
+  h-12
+  bg-slate-50
+`;
+
+const Button = tw.button`
+  w-1/2
 `;
 
 export default function Join() {
   const [showingWord, setShowingWord] = useState('');
-  const [welcomDone, setWelcomeDone] = useState(false);
+  const [welcomeDone, setWelcomeDone] = useState(false);
+  const [emailDone, setEmailDone] = useState(false);
 
   //useEffect for typing animation
   useEffect(() => {
@@ -72,14 +100,18 @@ export default function Join() {
   }, []);
 
   return (
-    <JoinFormContainer>
-      <WelcomeWord welcomeDone={welcomDone}>{showingWord}</WelcomeWord>
-      <br />
-      <JoinForm show={welcomDone}>
-        id :
-        <input type="text" />
-        <button>dd</button>
-      </JoinForm>
+    <JoinFormContainer welcomeDone={welcomeDone} emailDone={emailDone}>
+      <WelcomAnimation welcomeDone={welcomeDone}>{showingWord}</WelcomAnimation>
+      <JoinForm>
+        <CustomInput placeholder="이메일을 입력해주세요" />
+        <CustomInput
+          placeholder="비밀번호를 입력해주세요"
+          disabled={emailDone ? 'false' : 'true'}
+        />
+        <Button>dd</Button>
+        <Button>카카오버튼</Button>
+        <Button>깃헙버튼</Button>
+      </JoinForm>{' '}
     </JoinFormContainer>
   );
 }
