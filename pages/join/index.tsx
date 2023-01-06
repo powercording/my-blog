@@ -72,14 +72,16 @@ export default function Join() {
   }, []);
 
   return (
-    <JoinFormContainer>
+    <>
       <WelcomeWord welcomeDone={welcomDone}>{showingWord}</WelcomeWord>
       <br />
-      <JoinForm show={welcomDone}>
-        id :
-        <input type="text" />
-        <button>dd</button>
-      </JoinForm>
-    </JoinFormContainer>
+      <JoinFormContainer>
+        <JoinForm show={welcomDone}>
+          id :
+          <input type="text" />
+          <button>dd</button>
+        </JoinForm>
+      </JoinFormContainer>
+    </>
   );
 }
