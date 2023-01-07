@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import tw from 'tailwind-styled-components';
 import { useForm } from 'react-hook-form';
+import { FieldValues } from 'react-hook-form/dist/types';
+import { useDebounce } from '../../hooks/useDebounce';
 
 const WELCOM_WORD =
   '🪄 my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
@@ -25,23 +27,14 @@ const WelcomAnimation = styled.div<{
   }
 `;
 
-function defineHeight(welcome: boolean, email: boolean) {
-  if (!email && !welcome) {
-    return 'h-14';
-  }
-  if (!email && welcome) {
-    return 'h-36';
-  }
-  if (email && welcome) {
-    return 'h-80';
-  }
-}
-
 const JoinFormContainer = tw(WelcomAnimation)`
   w-auto px-4 py-4
   space-y-10 overflow-hidden
-  shadow-md
-  ${props => defineHeight(props.welcomeDone, props.emailDone)}
+  shadow-md h-auto
+`;
+
+const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
+  lg:w-1/2
 `;
 
 const JoinForm = tw.form`
@@ -50,11 +43,18 @@ const JoinForm = tw.form`
   gap-3
 `;
 
+const Label = tw.label<{ welcome: boolean }>`
+  ${props => (props.welcome ? '' : 'hidden')}
+  flex flex-col 
+  text-xs
+`;
+
 const InputExtends = styled.input.attrs(props => {
   type: props.type || 'text';
 })``;
 
 const CustomInput = tw(InputExtends)`
+  text-base
   w-auto
   h-12
   bg-slate-50
@@ -89,7 +89,7 @@ export default function Join() {
 
       while (letterArray.length) {
         //return index 0 of string array every 0.075sec
-        const displayWord = await delay(75, letterArray);
+        const displayWord = await delay(50, letterArray);
         setShowingWord(prev => (prev += displayWord));
       }
       if (!letterArray.length) {
@@ -101,28 +101,51 @@ export default function Join() {
     typingEffect();
   }, []);
 
-  const onSubmit = () => {
-    console.log('하이');
+  const onSubmit = (data: FieldValues) => {
+    console.log(data);
+  };
+
+  const valid = async () => {
+    fetch('api/join')
+      .then(res => res.json())
+      .then(json => {
+        if (json.ok === true) {
+          setEmailDone(true);
+        }
+      });
   };
 
   return (
-    <JoinFormContainer welcomeDone={welcomeDone} emailDone={emailDone}>
+    <JoinFormContainerLargeScreen
+      welcomeDone={welcomeDone}
+      emailDone={emailDone}
+    >
       <WelcomAnimation welcomeDone={welcomeDone}>{showingWord}</WelcomAnimation>
       <JoinForm onSubmit={handleSubmit(onSubmit)}>
+        <Label welcome={welcomeDone} htmlFor="email">
+          이메일을 입력해주세요
+          <CustomInput
+            id="email"
+            {...register('email', {
+              required: '이거입력해야하는데?',
+              onChange: () => useDebounce(valid),
+            })}
+            placeholder="your email"
+            disabled={welcomeDone ? false : true}
+          />
+        </Label>
         <CustomInput
-          {...register('email', {
-            required: '이거입력해야하는데?',
-          })}
-          placeholder="이메일을 입력해주세요"
-        />
-        <CustomInput
-          placeholder="비밀번호를 입력해주세요"
-          disabled={emailDone ? 'false' : 'true'}
+          placeholder={
+            emailDone
+              ? '비밀번호를 입력해주세요'
+              : '올바른 이메일을 입력하시면 활성화 됩니다.'
+          }
+          disabled={emailDone ? false : true}
         />
         <Button>dd</Button>
         <Button>카카오버튼</Button>
         <Button>깃헙버튼</Button>
       </JoinForm>
-    </JoinFormContainer>
+    </JoinFormContainerLargeScreen>
   );
 }
