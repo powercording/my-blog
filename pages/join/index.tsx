@@ -35,7 +35,9 @@ const JoinFormContainer = tw.div`
 `;
 
 const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
-  lg:w-1/4
+  sm:w-3/4  
+  md:w-1/2
+  lg:w-2/5
 `;
 
 const JoinForm = tw.form`
