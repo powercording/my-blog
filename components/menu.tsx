@@ -11,7 +11,7 @@ const NavContainer = tw.div`
   flex
   flex-col
   h-screen
-  bg-gray-100
+  bg-gray-50
   text-xl
   font-sans
   w-1/6
@@ -22,15 +22,13 @@ const NameTag = tw.p`
 `;
 
 const Category = tw.div`
-  border-red-500
-  border-2
+border-2
   mx-auto
   mt-5
   h-[150px]
 `;
 
 const LoginOrJoin = tw(NameTag)`
-border-red-500
   border-2
   mx-auto
   mt-auto

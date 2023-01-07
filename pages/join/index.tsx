@@ -44,7 +44,8 @@ const JoinForm = tw.form`
   gap-3
 `;
 
-const Button = tw.button`
+const Button = tw.button<{ $show: boolean }>`
+  ${props => (props.$show ? '' : 'hidden')}
   w-full
   bg-gray-100
   rounded-md
@@ -54,7 +55,7 @@ const Button = tw.button`
 
 const KakaoButton = tw(Button)`
   bg-yellow-300
-  hover:bg-yellow-400
+  hover:bg-yellow-200
 `;
 
 const GithubButton = tw(Button)`
@@ -142,15 +143,17 @@ export default function Join() {
           register={register('password', { required: true })}
           $show={emailDone}
         />
-        <Button className="w-full">Join</Button>
+        <Button className="w-full" $show={emailDone}>
+          Join
+        </Button>
       </JoinForm>
       <OrLine>
         <LoginWith />
         <span className="relative bg-white px-2 -top-3">or</span>
       </OrLine>
       <div className="flex gap-2">
-        <KakaoButton>kakao Login</KakaoButton>
-        <GithubButton>github Login</GithubButton>
+        <KakaoButton $show={true}>kakao Login</KakaoButton>
+        <GithubButton $show={true}>github Login</GithubButton>
       </div>
     </JoinFormContainerLargeScreen>
   );
