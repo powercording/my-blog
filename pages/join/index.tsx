@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import tw from 'tailwind-styled-components';
 
 const WELCOM_WORD =
-  '🪄my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
+  '🪄 my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
 
 const typeEffect = keyframes`
   50% {
