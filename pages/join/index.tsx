@@ -4,6 +4,7 @@ import tw from 'tailwind-styled-components';
 import { useForm } from 'react-hook-form';
 import { FieldValues } from 'react-hook-form/dist/types';
 import { useDebounce } from '../../hooks/useDebounce';
+import Input from '../../components/Input';
 
 const WELCOM_WORD =
   '🪄 my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
@@ -14,27 +15,27 @@ const typeEffect = keyframes`
   }
 `;
 
-const WelcomAnimation = styled.div<{
+const WelcomeAnimation = styled.div<{
   welcomeDone: boolean;
   emailDone?: boolean;
 }>`
   transition: height 1s;
   &: after {
-    content: ' ';
+    content: '';
     border-right: 2px solid black;
     animation: ${props => (props.welcomeDone ? '' : typeEffect)} 0.4s step-end
       infinite;
   }
 `;
 
-const JoinFormContainer = tw(WelcomAnimation)`
+const JoinFormContainer = tw.div`
   w-auto px-4 py-4
-  space-y-10 overflow-hidden
-  shadow-md h-auto
+  space-y-3 overflow-hidden
+  h-auto
 `;
 
 const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
-  lg:w-1/2
+  lg:w-1/4
 `;
 
 const JoinForm = tw.form`
@@ -43,25 +44,30 @@ const JoinForm = tw.form`
   gap-3
 `;
 
-const Label = tw.label<{ welcome: boolean }>`
-  ${props => (props.welcome ? '' : 'hidden')}
-  flex flex-col 
-  text-xs
-`;
-
-const InputExtends = styled.input.attrs(props => {
-  type: props.type || 'text';
-})``;
-
-const CustomInput = tw(InputExtends)`
-  text-base
-  w-auto
-  h-12
-  bg-slate-50
-`;
-
 const Button = tw.button`
-  w-1/2
+  w-full
+  bg-gray-100
+  rounded-md
+  hover:bg-gray-200
+  h-8
+`;
+
+const KakaoButton = tw(Button)`
+  bg-yellow-300
+  hover:bg-yellow-400
+`;
+
+const GithubButton = tw(Button)`
+  bg-black text-white
+  hover:bg-gray-700
+`;
+
+const OrLine = tw.div`
+relative text-center top-4
+`;
+
+const LoginWith = tw.div`
+  absolute border-t-2 border-gray-300 w-full
 `;
 
 export default function Join() {
@@ -88,12 +94,12 @@ export default function Join() {
       let letterArray = WELCOM_WORD.split('');
 
       while (letterArray.length) {
-        //return index 0 of string array every 0.075sec
+        //return index 0 of string array every 0.05sec
         const displayWord = await delay(50, letterArray);
         setShowingWord(prev => (prev += displayWord));
       }
       if (!letterArray.length) {
-        await delay(1000, []);
+        await delay(750, []);
         setWelcomeDone(true);
       }
     };
@@ -116,36 +122,36 @@ export default function Join() {
   };
 
   return (
-    <JoinFormContainerLargeScreen
-      welcomeDone={welcomeDone}
-      emailDone={emailDone}
-    >
-      <WelcomAnimation welcomeDone={welcomeDone}>{showingWord}</WelcomAnimation>
+    <JoinFormContainerLargeScreen>
+      <WelcomeAnimation welcomeDone={welcomeDone}>
+        {showingWord}
+      </WelcomeAnimation>
       <JoinForm onSubmit={handleSubmit(onSubmit)}>
-        <Label welcome={welcomeDone} htmlFor="email">
-          이메일을 입력해주세요
-          <CustomInput
-            id="email"
-            {...register('email', {
-              required: '이거입력해야하는데?',
-              onChange: () => useDebounce(valid),
-            })}
-            placeholder="your email"
-            disabled={welcomeDone ? false : true}
-          />
-        </Label>
-        <CustomInput
-          placeholder={
-            emailDone
-              ? '비밀번호를 입력해주세요'
-              : '올바른 이메일을 입력하시면 활성화 됩니다.'
-          }
-          disabled={emailDone ? false : true}
+        <Input
+          name="email"
+          type="text"
+          register={register('email', {
+            required: true,
+            onChange: () => useDebounce(valid),
+          })}
+          $show={welcomeDone}
         />
-        <Button>dd</Button>
-        <Button>카카오버튼</Button>
-        <Button>깃헙버튼</Button>
+        <Input
+          name="password"
+          type="string"
+          register={register('password', { required: true })}
+          $show={emailDone}
+        />
+        <Button className="w-full">Join</Button>
       </JoinForm>
+      <OrLine>
+        <LoginWith />
+        <span className="relative bg-white px-2 -top-3">or</span>
+      </OrLine>
+      <div className="flex gap-2">
+        <KakaoButton>kakao Login</KakaoButton>
+        <GithubButton>github Login</GithubButton>
+      </div>
     </JoinFormContainerLargeScreen>
   );
 }
