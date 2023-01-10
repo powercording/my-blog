@@ -16,6 +16,7 @@ const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
   sm:w-3/4  
   md:w-1/2
   lg:w-2/5
+  xl:w-1/3
 `;
 
 const JoinForm = tw.form`
@@ -60,7 +61,7 @@ export default function Join() {
   const [emailDone, setEmailDone] = useState<boolean | string>(false);
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit } = useForm();
-  const [emailDebounce, timer] = debounce(valid, 750);
+  const [emailDebounce, timer] = debounce(valid, 600);
   const [WelcomeWord, welcomeEnd] = WelcomeJoin();
 
   const onSubmit = (data: FieldValues) => {
