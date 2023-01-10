@@ -54,10 +54,8 @@ const LoginWith = tw.div`
 export default function Join() {
   const [emailDone, setEmailDone] = useState(false);
   const { register, handleSubmit } = useForm();
-  const [useDebounce, isLoading] = debounce(valid, 1000);
+  const [emailDebounce, isLoading] = debounce(valid, 1000);
   const [WelcomeWord, welcomeEnd] = WelcomeJoin();
-
-  console.log(isLoading, '이즈로딩?');
 
   const onSubmit = (data: FieldValues) => {
     console.log(data);
@@ -73,6 +71,19 @@ export default function Join() {
       });
   }
 
+  const emailRegExp = new RegExp(
+    /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+  );
+
+  const checkRegExp = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fn: () => void,
+    reg: RegExp,
+  ) => {
+    if (reg.test(e.target.value)) {
+      fn();
+    }
+  };
   return (
     <JoinFormContainerLargeScreen>
       <WelcomeWord></WelcomeWord>
@@ -82,7 +93,7 @@ export default function Join() {
           type="text"
           register={register('email', {
             required: true,
-            onChange: () => useDebounce(),
+            onChange: event => checkRegExp(event, emailDebounce, emailRegExp),
           })}
           $show={welcomeEnd}
         />
