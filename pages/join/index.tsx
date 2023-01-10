@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FieldValues } from 'react-hook-form/dist/types';
-import debounce from '../../hooks/useDebounce';
+import debounce from '@hooks/useDebounce';
 import tw from 'tailwind-styled-components';
-import Input from '../../components/Input';
-import WelcomeJoin from '../../components/WelcomeJoin';
+import Input from '@components/Input';
+import WelcomeJoin from '@components/WelcomeJoin';
+import useMutate from '@libs/client/useMutate';
 
 const JoinFormContainer = tw.div`
   w-auto px-4 py-4
@@ -27,11 +28,11 @@ const JoinForm = tw.form`
 
 const Button = tw.button<{ $show: boolean | string }>`
   ${props => (props.$show ? '' : 'hidden')}
-  w-full
+  w-full h-8
   bg-gray-100
   rounded-md
   hover:bg-gray-200
-  h-8
+  mt-3
 `;
 
 const InputContainer = tw.div<{ $show: boolean | string }>`
@@ -58,11 +59,17 @@ const LoginWith = tw.div`
 `;
 
 export default function Join() {
-  const [emailDone, setEmailDone] = useState<boolean | string>(false);
+  const [emailOk, setEmailOk] = useState<boolean | string>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { register, handleSubmit } = useForm();
   const [emailDebounce, timer] = debounce(valid, 600);
-  const [WelcomeWord, welcomeEnd] = WelcomeJoin();
+  const [Greeting, animationEnd] = WelcomeJoin();
+  // const [mutate, { fetchLoading, error, data }] = useMutate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = (data: FieldValues) => {
     console.log(data);
@@ -70,12 +77,12 @@ export default function Join() {
 
   async function valid() {
     setIsLoading(() => true);
-    fetch('api/join')
+    fetch('api/join', { method: 'POST' })
       .then(res => res.json())
       .then(json => {
         if (json.ok === true) {
           setIsLoading(() => false);
-          setEmailDone(true);
+          setEmailOk(true);
         }
       });
   }
@@ -94,36 +101,46 @@ export default function Join() {
     }
     if (!reg.test(e.target.value)) {
       clearTimeout(timer);
-      setEmailDone(() => false);
+      setEmailOk(() => false);
     }
   };
 
   return (
     <JoinFormContainerLargeScreen>
-      <WelcomeWord></WelcomeWord>
+      <Greeting></Greeting>
       <JoinForm onSubmit={handleSubmit(onSubmit)}>
-        <InputContainer $show={welcomeEnd}>
+        <InputContainer $show={animationEnd}>
           <Input
             name="email"
             type="text"
             register={register('email', {
               required: true,
+              pattern: /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
               onChange: event => checkRegExp(event, emailDebounce, emailRegExp),
             })}
           />
           <p className="absolute right-2 top-8">
-            {isLoading ? 'checking' : emailDone ? '✅' : '❌'}
+            {isLoading ? 'checking..' : emailOk ? '✅' : '❌'}
           </p>
         </InputContainer>
-        <InputContainer $show={emailDone}>
+        <InputContainer $show={emailOk}>
           <Input
             name="password"
             type="string"
-            register={register('password', { required: true })}
+            register={register('password', {
+              required: true,
+              pattern: {
+                value:
+                  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@!%*#?&])[A-Za-z\d@!%*#?&]{8,}$/,
+                message:
+                  '비밀번호는 각 한개 이상의 문자,숫자,특수문자가 포함되어야 합니다.',
+              },
+            })}
           />
+          <p className="text-xs text-red-400">안녕하세용</p>
         </InputContainer>
 
-        <Button className="w-full" $show={emailDone}>
+        <Button className="w-full" $show={emailOk}>
           Join
         </Button>
       </JoinForm>
