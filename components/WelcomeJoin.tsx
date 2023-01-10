@@ -44,7 +44,7 @@ export default function WelcomeJoin() {
 
       while (letterArray.length) {
         //return index 0 of string array every 0.05sec
-        const displayWord = await delay(50, letterArray);
+        const displayWord = await delay(40, letterArray);
         setShowingWord(prev => (prev += displayWord));
       }
       if (!letterArray.length) {

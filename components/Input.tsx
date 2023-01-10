@@ -6,7 +6,6 @@ interface InputProps {
   type: string;
   name: string;
   register: UseFormRegisterReturn;
-  $show: boolean;
   [key: string]: any;
 }
 
@@ -15,30 +14,27 @@ const InputContainer = tw.div`
   relative
 `;
 
-const CustomLabel = tw.label<{ $show: boolean }>`
-  ${props => (props.$show ? ' ' : 'hidden')}
+const CustomLabel = tw.label`
   text-xs
   text-gray-400
   my-2 mx-2
 `;
 
-const CustomInput = tw.input<{ $show: boolean }>`
-${props => (props.$show ? ' ' : 'hidden')}
-  border-emerald-100 border-2 rounded-md
-  focus:border-1 focus:outline-none focus:ring-2 focus:ring-offset-2
+const CustomInput = tw.input`
+  text-gray-500
+  border-gray-400 border-b-2 rounded-sm
+  focus:outline-none focus:ring-2 focus:ring-offset-1 focus: ring-gray-400
   pl-3
 `;
 
 export default function Input(inputProps: InputProps) {
-  const { label, type, name, register, $show, ...rest } = inputProps;
+  const { label, type, name, register, ...rest } = inputProps;
   console.log(...Object.values(rest));
 
   return (
     <InputContainer>
-      <CustomLabel $show={$show} htmlFor={name}>
-        {name}
-      </CustomLabel>
-      <CustomInput $show={$show} id={name} type={type} {...register} />
+      <CustomLabel htmlFor={name}>{name}</CustomLabel>
+      <CustomInput id={name} type={type} {...register} />
     </InputContainer>
   );
 }

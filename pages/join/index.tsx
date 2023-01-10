@@ -24,13 +24,18 @@ const JoinForm = tw.form`
   gap-3
 `;
 
-const Button = tw.button<{ $show: boolean }>`
+const Button = tw.button<{ $show: boolean | string }>`
   ${props => (props.$show ? '' : 'hidden')}
   w-full
   bg-gray-100
   rounded-md
   hover:bg-gray-200
   h-8
+`;
+
+const InputContainer = tw.div<{ $show: boolean | string }>`
+  relative
+  ${props => (props.$show ? '' : 'hidden')}
 `;
 
 const KakaoButton = tw(Button)`
@@ -44,7 +49,7 @@ const GithubButton = tw(Button)`
 `;
 
 const OrLine = tw.div`
-relative text-center top-4
+relative text-center top-6
 `;
 
 const LoginWith = tw.div`
@@ -52,9 +57,10 @@ const LoginWith = tw.div`
 `;
 
 export default function Join() {
-  const [emailDone, setEmailDone] = useState(false);
+  const [emailDone, setEmailDone] = useState<boolean | string>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit } = useForm();
-  const [emailDebounce, isLoading] = debounce(valid, 1000);
+  const [emailDebounce, timer] = debounce(valid, 750);
   const [WelcomeWord, welcomeEnd] = WelcomeJoin();
 
   const onSubmit = (data: FieldValues) => {
@@ -62,10 +68,12 @@ export default function Join() {
   };
 
   async function valid() {
+    setIsLoading(() => true);
     fetch('api/join')
       .then(res => res.json())
       .then(json => {
         if (json.ok === true) {
+          setIsLoading(() => false);
           setEmailDone(true);
         }
       });
@@ -83,26 +91,37 @@ export default function Join() {
     if (reg.test(e.target.value)) {
       fn();
     }
+    if (!reg.test(e.target.value)) {
+      clearTimeout(timer);
+      setEmailDone(() => false);
+    }
   };
+
   return (
     <JoinFormContainerLargeScreen>
       <WelcomeWord></WelcomeWord>
       <JoinForm onSubmit={handleSubmit(onSubmit)}>
-        <Input
-          name="email"
-          type="text"
-          register={register('email', {
-            required: true,
-            onChange: event => checkRegExp(event, emailDebounce, emailRegExp),
-          })}
-          $show={welcomeEnd}
-        />
-        <Input
-          name="password"
-          type="string"
-          register={register('password', { required: true })}
-          $show={emailDone}
-        />
+        <InputContainer $show={welcomeEnd}>
+          <Input
+            name="email"
+            type="text"
+            register={register('email', {
+              required: true,
+              onChange: event => checkRegExp(event, emailDebounce, emailRegExp),
+            })}
+          />
+          <p className="absolute right-2 top-8">
+            {isLoading ? 'checking' : emailDone ? '✅' : '❌'}
+          </p>
+        </InputContainer>
+        <InputContainer $show={emailDone}>
+          <Input
+            name="password"
+            type="string"
+            register={register('password', { required: true })}
+          />
+        </InputContainer>
+
         <Button className="w-full" $show={emailDone}>
           Join
         </Button>
