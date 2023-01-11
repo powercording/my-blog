@@ -21,8 +21,7 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
         password,
       },
     });
-
-    console.log(user);
+    console.log("userResult :",user);
   }
 
   return res.status(200).json({ ok: true });

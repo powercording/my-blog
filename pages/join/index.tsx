@@ -75,18 +75,24 @@ export default function Join() {
     mutate(formData);
     console.log(data);
   };
-  console.log(watch().email);
+
   async function valid() {
+    setIsLoading(true);
     fetch(`api/user/get?email=${watch().email}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     })
-      .then(res => res.json())
-      .then(json => console.log(json));
-
-    setEmailOk(true);
+      .then(res => res.json().catch(() => {}))
+      .then(json => {
+        if (json.user === null) {
+          setEmailOk(true);
+        } else if (json.user !== null) {
+          setEmailOk(false);
+        }
+      })
+      .finally(() => setIsLoading(false));
   }
 
   const emailRegExp = new RegExp(
@@ -122,7 +128,7 @@ export default function Join() {
             })}
           />
           <p className="absolute right-2 top-8">
-            {isLoading ? 'checking..' : emailOk ? '✅' : '❌'}
+            {isLoading ? 'checking..' : emailOk ? '✅' : '⚠️'}
           </p>
         </InputContainer>
         <InputContainer $show={emailOk}>
