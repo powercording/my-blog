@@ -63,7 +63,7 @@ export default function Join() {
   const [isLoading, setIsLoading] = useState(false);
   const [emailDebounce, timer] = debounce(valid, 600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  // const [mutate, { fetchLoading, error, data }] = useMutate();
+  const [mutate, { fetchLoading, error, data }] = useMutate('api/join');
 
   const {
     register,
@@ -71,20 +71,22 @@ export default function Join() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: FieldValues) => {
-    console.log(data);
+  const onSubmit = (formData: FieldValues) => {
+    mutate(formData);
+    console.log(data)
   };
 
   async function valid() {
-    setIsLoading(() => true);
-    fetch('api/join', { method: 'POST' })
-      .then(res => res.json())
-      .then(json => {
-        if (json.ok === true) {
-          setIsLoading(() => false);
-          setEmailOk(true);
-        }
-      });
+    // setIsLoading(() => true);
+    // fetch('api/join', { method: 'POST' })
+    //   .then(res => res.json())
+    //   .then(json => {
+    //     if (json.ok === true) {
+    //       setIsLoading(() => false);
+    //       setEmailOk(true);
+    //     }
+    //   });
+    setEmailOk(true);
   }
 
   const emailRegExp = new RegExp(
