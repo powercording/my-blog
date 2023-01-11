@@ -64,28 +64,28 @@ export default function Join() {
   const [emailDebounce, timer] = debounce(valid, 600);
   const [Greeting, animationEnd] = WelcomeJoin();
   const [mutate, { fetchLoading, error, data }] = useMutate('api/join');
-
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm();
 
   const onSubmit = (formData: FieldValues) => {
     mutate(formData);
-    console.log(data)
+    console.log(data);
   };
-
+  console.log(watch().email);
   async function valid() {
-    // setIsLoading(() => true);
-    // fetch('api/join', { method: 'POST' })
-    //   .then(res => res.json())
-    //   .then(json => {
-    //     if (json.ok === true) {
-    //       setIsLoading(() => false);
-    //       setEmailOk(true);
-    //     }
-    //   });
+    fetch(`api/user/get?email=${watch().email}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => res.json())
+      .then(json => console.log(json));
+
     setEmailOk(true);
   }
 
