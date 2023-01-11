@@ -12,19 +12,25 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
+  if (user) {
+    return res
+      .status(200)
+      .json({ ok: false, warn: '이미 존재하는 아이디 입니다.' });
+  }
+
   if (!user) {
     console.log("user dosen't exist. creating user...");
     user = await client.user.create({
       data: {
         email,
-        name: 'anonymousss',
+        name: email,
         password,
       },
     });
-    console.log("userResult :",user);
+    console.log('userResult :', user);
   }
 
-  return res.status(200).json({ ok: true });
+  return res.status(200).json({ ok: true, ...user });
 }
 
 export default apiHandler('POST', Join);

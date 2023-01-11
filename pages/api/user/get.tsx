@@ -11,7 +11,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  return res.status(200).json({ user });
+  return res.status(200).json(user);
 }
 
 export default apiHandler('GET', getUser);

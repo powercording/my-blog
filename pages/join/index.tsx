@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FieldValues } from 'react-hook-form/dist/types';
-import debounce from '@hooks/useDebounce';
+import useDebounce from '@hooks/useDebounce';
 import tw from 'tailwind-styled-components';
 import Input from '@components/Input';
 import WelcomeJoin from '@components/WelcomeJoin';
 import useMutate from '@libs/client/useMutate';
+import { CONST } from '@libs/constant/CONST';
 
 const JoinFormContainer = tw.div`
   w-auto px-4 py-4
@@ -60,8 +61,8 @@ const LoginWith = tw.div`
 
 export default function Join() {
   const [emailOk, setEmailOk] = useState<boolean | string>(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [emailDebounce, timer] = debounce(valid, 600);
+  const [refuse, setRefuse] = useState<string | null>(null);
+  const [emailDebounce, { loading }, timer] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
   const [mutate, { fetchLoading, error, data }] = useMutate('api/join');
   const {
@@ -76,40 +77,16 @@ export default function Join() {
     console.log(data);
   };
 
-  async function valid() {
-    setIsLoading(true);
-    fetch(`api/user/get?email=${watch().email}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(res => res.json().catch(() => {}))
-      .then(json => {
-        if (json.user === null) {
-          setEmailOk(true);
-        } else if (json.user !== null) {
-          setEmailOk(false);
-        }
-      })
-      .finally(() => setIsLoading(false));
-  }
-
-  const emailRegExp = new RegExp(
-    /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
-  );
-
-  const checkRegExp = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fn: () => void,
-    reg: RegExp,
-  ) => {
-    if (reg.test(e.target.value)) {
-      fn();
+  const debounceWithRegExp = async (pass: boolean) => {
+    if (pass) {
+      const user = await emailDebounce(`api/user/get?email=${watch().email}`);
+      setEmailOk(user ? false : true);
+      setRefuse(user ? 'already exist' : null);
     }
-    if (!reg.test(e.target.value)) {
+    if (!pass) {
       clearTimeout(timer);
       setEmailOk(() => false);
+      setRefuse(null);
     }
   };
 
@@ -123,12 +100,13 @@ export default function Join() {
             type="text"
             register={register('email', {
               required: true,
-              pattern: /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
-              onChange: event => checkRegExp(event, emailDebounce, emailRegExp),
+              pattern: CONST.EMAIL_REG,
+              onChange: e =>
+                debounceWithRegExp(CONST.EMAIL_REG.test(e.target.value)),
             })}
           />
           <p className="absolute right-2 top-8">
-            {isLoading ? 'checking..' : emailOk ? '✅' : '⚠️'}
+            {loading ? 'checking..' : emailOk ? '✅' : refuse ?? 'enter email'}
           </p>
         </InputContainer>
         <InputContainer $show={emailOk}>
@@ -138,10 +116,8 @@ export default function Join() {
             register={register('password', {
               required: true,
               pattern: {
-                value:
-                  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@!%*#?&])[A-Za-z\d@!%*#?&]{8,}$/,
-                message:
-                  '비밀번호는 각 한개 이상의 문자,숫자,특수문자가 포함되어야 합니다.',
+                value: CONST.PASSWORD_REG,
+                message: CONST.PASSWORD_ERR,
               },
             })}
           />
