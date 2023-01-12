@@ -59,32 +59,39 @@ const LoginWith = tw.div`
   absolute border-t-2 border-gray-300 w-full
 `;
 
+const InfoMessage = tw.p`
+text-xs text-red-300 mt-1 ml-2
+`;
+
 export default function Join() {
-  const [emailOk, setEmailOk] = useState<boolean | string>(false);
+  const [emailOk, setEmailOk] = useState<boolean>(false);
   const [refuse, setRefuse] = useState<string | null>(null);
   const [emailDebounce, { loading }, timer] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  const [mutate, { fetchLoading, error, data }] = useMutate('api/join');
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm();
+  const [mutate, { data }] = useMutate('api/join');
+  const { register, handleSubmit, watch, reset } = useForm();
 
   const onSubmit = (formData: FieldValues) => {
     mutate(formData);
     console.log(data);
   };
 
-  const debounceWithRegExp = async (pass: boolean) => {
+  const setFeedback = (user: Object | null) => {
+    user
+      ? (setEmailOk(false), //if user,
+        setRefuse(CONST.EMAIL_EXIST),
+        reset({ password: '' }))
+      : (setEmailOk(true), setRefuse(null)); //if no user
+  };
+
+  const userApiDebounce = async (pass: boolean) => {
     if (pass) {
       const user = await emailDebounce(`api/user/get?email=${watch().email}`);
-      setEmailOk(user ? false : true);
-      setRefuse(user ? 'already exist' : null);
+      setFeedback(user!);
     }
     if (!pass) {
       clearTimeout(timer);
+      reset({ password: '' });
       setEmailOk(() => false);
       setRefuse(null);
     }
@@ -102,12 +109,16 @@ export default function Join() {
               required: true,
               pattern: CONST.EMAIL_REG,
               onChange: e =>
-                debounceWithRegExp(CONST.EMAIL_REG.test(e.target.value)),
+                userApiDebounce(CONST.EMAIL_REG.test(e.target.value)),
             })}
           />
-          <p className="absolute right-2 top-8">
-            {loading ? 'checking..' : emailOk ? '✅' : refuse ?? 'enter email'}
-          </p>
+          <InfoMessage>
+            {loading
+              ? 'checking..'
+              : emailOk
+              ? '☑️'
+              : refuse ?? CONST.ENTER_EMAIL}
+          </InfoMessage>
         </InputContainer>
         <InputContainer $show={emailOk}>
           <Input
@@ -121,7 +132,9 @@ export default function Join() {
               },
             })}
           />
-          <p className="text-xs text-red-400">안녕하세용</p>
+          <InfoMessage className="text-xs text-red-400">
+            비밀번호를 입력해 주세요
+          </InfoMessage>
         </InputContainer>
 
         <Button className="w-full" $show={emailOk}>
