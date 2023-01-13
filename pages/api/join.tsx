@@ -30,6 +30,12 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
     console.log('userResult :', user);
   }
 
+  const token = await client.token.create({ 
+    data: {
+      
+    }
+  });
+
   return res.status(200).json({ ok: true, ...user });
 }
 
