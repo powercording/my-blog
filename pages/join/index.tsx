@@ -7,6 +7,7 @@ import Input from '@components/Input';
 import WelcomeJoin from '@components/WelcomeJoin';
 import useMutate from '@libs/client/useMutate';
 import { CONST } from '@libs/constant/CONST';
+import Link from 'next/link';
 
 const JoinFormContainer = tw.div`
   w-auto px-4 py-4
@@ -146,8 +147,12 @@ export default function Join() {
         <span className="relative bg-white px-2 -top-3">or</span>
       </OrLine>
       <div className="flex gap-2">
-        <KakaoButton $show={true}>kakao Login</KakaoButton>
-        <GithubButton $show={true}>github Login</GithubButton>
+        <Link href="api/login/kakaoLogin" className="w-full">
+          <KakaoButton $show={true}>kakao Login</KakaoButton>
+        </Link>
+        <Link href="" className="w-full">
+          <GithubButton $show={true}>github Login</GithubButton>
+        </Link>
       </div>
     </JoinFormContainerLargeScreen>
   );
