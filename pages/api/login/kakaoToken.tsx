@@ -17,7 +17,7 @@ export async function kakaoToken(req: NextApiRequest, res: NextApiResponse) {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: params,
-  };
+  }
 
   const kakaoToken = await fetch(url, fetchOptions).then(res => res.json());
   console.log(kakaoToken);

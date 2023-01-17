@@ -3,52 +3,45 @@ import styled, { keyframes } from 'styled-components';
 
 const typeEffect = keyframes`
   50% {
-    opacity : 0;
+    opacity : 1;
   }
 `;
 
 const WelcomeAnimation = styled.div<{
   welcomeDone: boolean;
-  emailDone?: boolean;
 }>`
   transition: height 1s;
   &: after {
     content: '';
     border-right: 2px solid black;
+    opacity: 0;
     animation: ${props => (props.welcomeDone ? '' : typeEffect)} 0.4s step-end
       infinite;
   }
 `;
 
 export default function WelcomeJoin() {
-  const [showingWord, setShowingWord] = useState('');
   const [welcomeDone, setWelcomeDone] = useState(false);
-  const WELCOM_WORD =
-    '🪄 my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
+  const [typeEffect, setTypeEffect] = useState('');
+
+  const delay = (ms: number) => {
+    return new Promise(res => setTimeout(res, ms));
+  };
 
   useEffect(() => {
-    //this delay function downbelow, should be moved to somewhere other file to shorten this function's line of code
-    const delay = (ms: number, letterArray: string[]) => {
-      if (letterArray.length)
-        return new Promise(res =>
-          setTimeout(() => {
-            res(letterArray.shift());
-          }, ms),
-        );
-
-      return new Promise(res => setTimeout(res, ms));
-    };
-
     const typingEffect = async () => {
-      let letterArray = WELCOM_WORD.split('');
+      let hello = document.querySelector('#welcome') as HTMLElement | null;
+      const WELCOM_WORD =
+        '🪄 my-Blog 가입을 환영합니다. 계속 하시려면 아래의 정보를 입력해 주세요.';
 
-      while (letterArray.length) {
-        //return index 0 of string array every 0.05sec
-        const displayWord = await delay(40, letterArray);
-        setShowingWord(prev => (prev += displayWord));
+      for (let char = 0; char < WELCOM_WORD.length; char++) {
+        await delay(40);
+        hello!.innerHTML += WELCOM_WORD[char];
       }
-      if (!letterArray.length) {
-        await delay(750, []);
+
+      if (hello!.innerText == WELCOM_WORD) {
+        await delay(750);
+        setTypeEffect(WELCOM_WORD);
         setWelcomeDone(true);
       }
     };
@@ -58,8 +51,8 @@ export default function WelcomeJoin() {
 
   const WelcomeLine = () => {
     return (
-      <WelcomeAnimation welcomeDone={welcomeDone}>
-        {showingWord}
+      <WelcomeAnimation welcomeDone={welcomeDone} id="welcome">
+        {typeEffect}
       </WelcomeAnimation>
     );
   };
