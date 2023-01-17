@@ -19,14 +19,16 @@ const WelcomeAnimation = styled.div<{
       infinite;
   }
 `;
+const delay = (ms: number) => {
+  return new Promise(res => setTimeout(res, ms));
+};
 
 export default function WelcomeJoin() {
-  const [welcomeDone, setWelcomeDone] = useState(false);
-  const [typeEffect, setTypeEffect] = useState('');
-
-  const delay = (ms: number) => {
-    return new Promise(res => setTimeout(res, ms));
-  };
+  const [state, setState] = useState({
+    welcomeDone: false,
+    typeEffect: '',
+  });
+  const { typeEffect, welcomeDone } = state;
 
   useEffect(() => {
     const typingEffect = async () => {
@@ -39,14 +41,13 @@ export default function WelcomeJoin() {
         hello!.innerHTML += WELCOM_WORD[char];
       }
 
-      if (hello!.innerText == WELCOM_WORD) {
-        await delay(750);
-        setTypeEffect(WELCOM_WORD);
-        setWelcomeDone(true);
-      }
+      await delay(750);
+      setState({ welcomeDone: true, typeEffect: WELCOM_WORD });
     };
 
     typingEffect();
+
+    return () => setState({ welcomeDone: false, typeEffect: '' });
   }, []);
 
   const WelcomeLine = () => {
