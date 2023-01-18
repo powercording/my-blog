@@ -29,7 +29,6 @@ const CustomInput = tw.input`
 
 export default function Input(inputProps: InputProps) {
   const { label, type, name, register, ...rest } = inputProps;
-  console.log(...Object.values(rest));
 
   return (
     <InputContainer>
