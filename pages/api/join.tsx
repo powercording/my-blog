@@ -3,26 +3,26 @@ import client from '@libs/server/client';
 import apiHandler from '@libs/server/apiHandler';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
-const nowTime = Date.now();
+
+const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NEXT_PUBLIC_NCLOUD_SID}/messages`;
 
 function makeSignature() {
-  let space = ' ';
-  let newLine = '\n';
-  let method = 'GET';
-  let url =
-    'https://sens.apigw.ntruss.com/sms/v2/services/ncp:sms:kr:293832677997:sdblog/messages';
-  let timeStamp = `${nowTime}`;
-  let accessKey = `${process.env.NEXT_PUBLIC_NCLOUD_ACCESS}`;
-  let secretKey = `${process.env.NEXT_PUBLIC_NCLOUD_SECRET}`;
+  const date = Date.now() + '';
+  const secretKey = `${process.env.NEXT_PUBLIC_NCLOUD_SECRET}`;
+  const accessKey = `${process.env.NEXT_PUBLIC_NCLOUD_ACCESS}`;
+  const method = 'POST';
+  const space = ' ';
+  const newLine = '\n';
+  const url2 = `/sms/v2/services/${process.env.NEXT_PUBLIC_NCLOUD_SID}/messages`;
 
-  let hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, secretKey + '');
+  let hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, secretKey);
   hmac.update(method);
   hmac.update(space);
-  hmac.update(url);
+  hmac.update(url2);
   hmac.update(newLine);
-  hmac.update(timeStamp);
+  hmac.update(date);
   hmac.update(newLine);
-  hmac.update(accessKey + '');
+  hmac.update(accessKey);
 
   let hash = hmac.finalize();
 
@@ -72,7 +72,7 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
 
   await axios
     .post(
-      'https://sens.apigw.ntruss.com/sms/v2/services/ncp:sms:kr:293832677997:sdblog/messages',
+      url,
       {
         type: 'SMS',
         from: '01020732223',
@@ -87,7 +87,7 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
       {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
-          'x-ncp-apigw-timestamp': nowTime,
+          'x-ncp-apigw-timestamp': Date.now(),
           'x-ncp-iam-access-key': process.env.NEXT_PUBLIC_NCLOUD_ACCESS,
           'x-ncp-apigw-signature-v2': makeSignature(),
         },
@@ -95,6 +95,7 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
     )
     .then(res => console.log(res))
     .catch(error => console.log('에러', error));
+
   return res.status(200).json({ ok: true, ...user });
 }
 
