@@ -1,33 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import apiHandler from '@libs/server/apiHandler';
-import CryptoJS from 'crypto-js';
-import axios from 'axios';
+import nCloudApiHeader from '@libs/utiles/nCloudApiHeader';
 
 const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NEXT_PUBLIC_NCLOUD_SID}/messages`;
-
-function makeSignature() {
-  const date = Date.now() + '';
-  const secretKey = `${process.env.NEXT_PUBLIC_NCLOUD_SECRET}`;
-  const accessKey = `${process.env.NEXT_PUBLIC_NCLOUD_ACCESS}`;
-  const method = 'POST';
-  const space = ' ';
-  const newLine = '\n';
-  const url2 = `/sms/v2/services/${process.env.NEXT_PUBLIC_NCLOUD_SID}/messages`;
-
-  let hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, secretKey);
-  hmac.update(method);
-  hmac.update(space);
-  hmac.update(url2);
-  hmac.update(newLine);
-  hmac.update(date);
-  hmac.update(newLine);
-  hmac.update(accessKey);
-
-  let hash = hmac.finalize();
-
-  return hash.toString(CryptoJS.enc.Base64);
-}
 
 async function Join(req: NextApiRequest, res: NextApiResponse) {
   const { email, password } = req.body;
@@ -70,31 +46,26 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
 
   // console.log(token);
 
-  await axios
-    .post(
-      url,
+  const messageBody = {
+    type: 'SMS',
+    from: '01020732223',
+    content: '호잇',
+    messages: [
       {
-        type: 'SMS',
-        from: '01020732223',
-        content: '테스트메세지 입니다',
-        messages: [
-          {
-            to: '01020732223',
-            content: '테스트배열입니다',
-          },
-        ],
+        to: '01020732223',
+        content: '암호는 12345 입니다.',
       },
-      {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'x-ncp-apigw-timestamp': Date.now(),
-          'x-ncp-iam-access-key': process.env.NEXT_PUBLIC_NCLOUD_ACCESS,
-          'x-ncp-apigw-signature-v2': makeSignature(),
-        },
-      },
-    )
-    .then(res => console.log(res))
-    .catch(error => console.log('에러', error));
+    ],
+  };
+
+  await fetch(url, {
+    method: 'POST',
+    headers: nCloudApiHeader(),
+    body: JSON.stringify(messageBody),
+  })
+    .then(res => res.json().catch(e => console.log(e)))
+    .then(json => console.log(json))
+    .catch(e => console.log(e));
 
   return res.status(200).json({ ok: true, ...user });
 }
