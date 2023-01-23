@@ -11,4 +11,3 @@ export async function kakaoLogin(req: NextApiRequest, res: NextApiResponse) {
 
 export default apiHandler('GET', kakaoLogin);
 
-//the button which is sending kakao login request will have an address this file's path. (api/login/kakaoLogin)
