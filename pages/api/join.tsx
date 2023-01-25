@@ -36,16 +36,16 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
 
   const payLoad = Math.floor(100000 + Math.random() * 900000);
 
-  // const token = await client.token.create({
-  //   data: {
-  //     payload: '페이로드',
-  //     user: {
-  //       connect: {
-  //         id: user.id,
-  //       },
-  //     },
-  //   },
-  // });
+  const token = await client.token.create({
+    data: {
+      payload: payLoad + '',
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+  });
 
   // const messageBody = {
   //   type: 'SMS',

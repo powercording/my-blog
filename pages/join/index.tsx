@@ -78,11 +78,20 @@ export default function Join() {
   };
 
   const setFeedback = (user: Object | null) => {
-    user
-      ? (setEmailOk(false), //if user,
+    if (user) {
+      setEmailOk(false), //if user,
         setRefuse(CONST.EMAIL_EXIST),
-        reset({ password: '' }))
-      : (setEmailOk(true), setRefuse(null)); //if no user
+        reset({ password: '' });
+    }
+    if (!user) {
+      setEmailOk(true), setRefuse(null);
+
+      const passWordInput = document.querySelector('#password') as HTMLElement;
+      console.log(passWordInput);
+      if (passWordInput) {
+        passWordInput.focus();
+      }
+    }
   };
 
   const userApiDebounce = async (pass: boolean) => {
@@ -123,6 +132,7 @@ export default function Join() {
         </InputContainer>
         <InputContainer $show={emailOk}>
           <Input
+            id="password"
             name="password"
             type="string"
             register={register('password', {
