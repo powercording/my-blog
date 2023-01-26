@@ -70,7 +70,9 @@ export default function Join() {
   const [emailDebounce, { loading }, timer] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
   const [mutate, { data }] = useMutate('api/join');
-  const { register, handleSubmit, watch, reset } = useForm();
+  const { register, handleSubmit, reset } = useForm();
+
+  console.log('랜더링 테스트');
 
   const onSubmit = (formData: FieldValues) => {
     mutate(formData);
@@ -85,21 +87,30 @@ export default function Join() {
     }
     if (!user) {
       setEmailOk(true), setRefuse(null);
-
       const passWordInput = document.querySelector('#password') as HTMLElement;
-      console.log(passWordInput);
+      console.dir(passWordInput);
       if (passWordInput) {
-        passWordInput.focus();
+        setTimeout(() => {
+          passWordInput.focus();
+        }, 10);
       }
     }
   };
 
-  const userApiDebounce = async (pass: boolean) => {
-    if (pass) {
-      const user = await emailDebounce(`api/user/get?email=${watch().email}`);
-      setFeedback(user!);
+  const userApiDebounce = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const userEmail = e.target.value;
+    const passReg = CONST.EMAIL_REG.test(userEmail);
+
+    if (passReg) {
+      const user = await fetch(`api/user/get?email=${userEmail}`)
+        .then(response => response.json().catch(e => console.log(e)))
+        .then(json => {
+          console.log(json);
+          setFeedback(json);
+        })
+        .catch(e => console.log(e));
     }
-    if (!pass) {
+    if (!passReg) {
       clearTimeout(timer);
       reset({ password: '' });
       setEmailOk(() => false);
@@ -118,8 +129,7 @@ export default function Join() {
             register={register('email', {
               required: true,
               pattern: CONST.EMAIL_REG,
-              onChange: e =>
-                userApiDebounce(CONST.EMAIL_REG.test(e.target.value)),
+              onChange: e => emailDebounce(() => userApiDebounce(e)),
             })}
           />
           <InfoMessage>

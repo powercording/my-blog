@@ -5,7 +5,7 @@ let timer: any;
 export default function deBounce(ms: number = 500) {
   const [loading, setLoading] = useState(false);
 
-  const useDebounce = async (url: string) => {
+  const useDebounce = async (fn: () => Promise<any>) => {
     if (timer) {
       setLoading(() => false);
       clearTimeout(timer);
@@ -14,17 +14,8 @@ export default function deBounce(ms: number = 500) {
     const promise = new Promise(res => {
       timer = setTimeout(() => {
         setLoading(() => true);
-        fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-          .then(res => res.json().catch(() => {}))
-          .then(data => {
-            setLoading(() => false);
-            res(data);
-          });
+
+        res((fn(), setLoading(() => false)));
       }, ms);
     });
 
