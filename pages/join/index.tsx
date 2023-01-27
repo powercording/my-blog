@@ -31,10 +31,12 @@ const JoinForm = tw.form`
 const Button = tw.button<{ $show: boolean | string }>`
   ${props => (props.$show ? '' : 'hidden')}
   w-full h-8
-  bg-gray-100
+  bg-gray-300
   rounded-md
-  hover:bg-gray-200
+  hover:bg-gray-400
   mt-3
+  font-bold
+  text-gray-700
 `;
 
 const InputContainer = tw.div<{ $show: boolean | string }>`
@@ -43,13 +45,13 @@ const InputContainer = tw.div<{ $show: boolean | string }>`
 `;
 
 const KakaoButton = tw(Button)`
-  bg-yellow-300
-  hover:bg-yellow-200
+  bg-yellow-200
+  hover:bg-yellow-100
 `;
 
 const GithubButton = tw(Button)`
-  bg-black text-white
-  hover:bg-gray-700
+  bg-gray-800 text-white
+  hover:bg-gray-500
 `;
 
 const OrLine = tw.div`
@@ -67,23 +69,32 @@ text-xs text-red-300 mt-1 ml-2
 export default function Join() {
   const [emailOk, setEmailOk] = useState<boolean>(false);
   const [refuse, setRefuse] = useState<string | null>(null);
-  const [emailDebounce, { loading: debounceLoading }, timer] = useDebounce(600);
+  const [emailDebounce, debounceLoading, timer] = useDebounce(600);
+  const [passwordDebounce] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  const [mutate, { data, loading: joinLoading }] = useMutate('api/join');
-  const { register, handleSubmit, reset } = useForm();
+  const [mutate, dataReset, { data, loading }] = useMutate('api/join');
+  const { register, handleSubmit, reset, getValues } = useForm();
 
-  console.log('랜더링 테스트');
 
-  const onSubmit = (formData: FieldValues) => {
+  const handleJoin = (formData: FieldValues) => {
+    // const testData = {
+    //   email: getValues('email'),
+    //   password: getValues('password'),
+    // };
     mutate(formData);
-    console.log(data!.ok);
+    console.log(data?.ok);
+  };
+
+  const onSubmit = () => {
+    console.log(getValues('payLoad'));
   };
 
   const setFeedback = (user: Object | null) => {
     if (user) {
-      setEmailOk(false), //if user,
-        setRefuse(CONST.EMAIL_EXIST),
-        reset({ password: '' });
+      setEmailOk(false); //if user,
+      setRefuse(CONST.EMAIL_EXIST);
+      reset({ password: '' });
+      dataReset();
     }
     if (!user) {
       setEmailOk(true), setRefuse(null);
@@ -102,11 +113,11 @@ export default function Join() {
     const passReg = CONST.EMAIL_REG.test(userEmail);
 
     if (passReg) {
-      const user = await fetch(`api/user/get?email=${userEmail}`)
+      await fetch(`api/user/get?email=${userEmail}`)
         .then(response => response.json().catch(e => console.log(e)))
-        .then(json => {
-          console.log(json);
-          setFeedback(json);
+        .then(user => {
+          console.log(user);
+          setFeedback(user);
         })
         .catch(e => console.log(e));
     }
@@ -115,13 +126,20 @@ export default function Join() {
       reset({ password: '' });
       setEmailOk(() => false);
       setRefuse(null);
+      dataReset();
     }
+  };
+
+  const passwordCheck = async () => {
+    console.log('password Checking');
   };
 
   return (
     <JoinFormContainerLargeScreen>
       <Greeting></Greeting>
-      <JoinForm onSubmit={handleSubmit(onSubmit)}>
+      <JoinForm
+        onSubmit={data?.ok ? handleSubmit(onSubmit) : handleSubmit(handleJoin)}
+      >
         <InputContainer $show={animationEnd}>
           <Input
             name="email"
@@ -129,7 +147,9 @@ export default function Join() {
             register={register('email', {
               required: true,
               pattern: CONST.EMAIL_REG,
-              onChange: e => emailDebounce(() => userApiDebounce(e)),
+              onChange(event) {
+                emailDebounce(() => userApiDebounce(event));
+              },
             })}
           />
           <InfoMessage>
@@ -147,19 +167,25 @@ export default function Join() {
             type="string"
             register={register('password', {
               required: true,
-              pattern: {
-                value: CONST.PASSWORD_REG,
-                message: CONST.PASSWORD_ERR,
+              pattern: CONST.PASSWORD_REG,
+              onChange(event) {
+                passwordDebounce(passwordCheck);
               },
             })}
           />
           <InfoMessage className="text-xs text-red-400">
-            비밀번호를 입력해 주세요
+            비밀번호를는 숫자 문자 특수문자를 한개이상 포함해야 합니다.
           </InfoMessage>
         </InputContainer>
-
+        <InputContainer $show={data?.ok}>
+          <Input
+            name="Secret Number"
+            type="stirng"
+            register={register('payLoad')}
+          ></Input>
+        </InputContainer>
         <Button className="w-full" $show={emailOk}>
-          Join
+          {data?.ok ? '인증하기' : '회원가입'}
         </Button>
       </JoinForm>
       <OrLine>

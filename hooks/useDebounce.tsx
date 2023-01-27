@@ -5,22 +5,18 @@ let timer: any;
 export default function deBounce(ms: number = 500) {
   const [loading, setLoading] = useState(false);
 
-  const useDebounce = async (fn: () => Promise<any>) => {
+  const useDebounce = async (fn: () => void) => {
     if (timer) {
       setLoading(() => false);
       clearTimeout(timer);
     }
 
-    const promise = new Promise(res => {
-      timer = setTimeout(() => {
-        setLoading(() => true);
-
-        res((fn(), setLoading(() => false)));
-      }, ms);
-    });
-
-    return promise;
+    timer = setTimeout(async () => {
+      setLoading(prev => true);
+      await fn();
+      setLoading(() => false);
+    }, ms);
   };
 
-  return [useDebounce, { loading }, timer] as const;
+  return [useDebounce, loading, timer] as const;
 }

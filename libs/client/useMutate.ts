@@ -6,7 +6,7 @@ interface MutationState<T> {
   data?: T;
 }
 
-type MutationReturn<T> = [(data: any) => void, MutationState<T>];
+type MutationReturn<T> = [(data: any) => void, () => void, MutationState<T>];
 
 export default function useMutate<T = any>(url: string): MutationReturn<T> {
   //return state object
@@ -15,6 +15,11 @@ export default function useMutate<T = any>(url: string): MutationReturn<T> {
     error: undefined,
     data: undefined,
   });
+
+  //resetData
+  const reset = () => {
+    setState(prev => ({ ...prev, data: undefined }));
+  };
 
   //return mutating function
   const mutationFunction = (data: any) => {
@@ -33,5 +38,5 @@ export default function useMutate<T = any>(url: string): MutationReturn<T> {
       .finally(() => setState(prev => ({ ...prev, fetchLoading: false })));
   };
 
-  return [mutationFunction, { ...state }];
+  return [mutationFunction, reset, { ...state }];
 }
