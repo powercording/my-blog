@@ -67,16 +67,16 @@ text-xs text-red-300 mt-1 ml-2
 export default function Join() {
   const [emailOk, setEmailOk] = useState<boolean>(false);
   const [refuse, setRefuse] = useState<string | null>(null);
-  const [emailDebounce, { loading }, timer] = useDebounce(600);
+  const [emailDebounce, { loading: debounceLoading }, timer] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  const [mutate, { data }] = useMutate('api/join');
+  const [mutate, { data, loading: joinLoading }] = useMutate('api/join');
   const { register, handleSubmit, reset } = useForm();
 
   console.log('랜더링 테스트');
 
   const onSubmit = (formData: FieldValues) => {
     mutate(formData);
-    console.log(data);
+    console.log(data!.ok);
   };
 
   const setFeedback = (user: Object | null) => {
@@ -133,7 +133,7 @@ export default function Join() {
             })}
           />
           <InfoMessage>
-            {loading
+            {debounceLoading
               ? 'checking..'
               : emailOk
               ? '☑️'
