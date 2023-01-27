@@ -63,25 +63,26 @@ const LoginWith = tw.div`
 `;
 
 const InfoMessage = tw.p`
-text-xs text-red-300 mt-1 ml-2
+text-xs text-slate-500 mt-1 ml-2
 `;
 
 export default function Join() {
-  const [emailOk, setEmailOk] = useState<boolean>(false);
+  const [emailOk, setEmailOk] = useState(false);
   const [refuse, setRefuse] = useState<string | null>(null);
   const [emailDebounce, debounceLoading, timer] = useDebounce(600);
   const [passwordDebounce] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
   const [mutate, dataReset, { data, loading }] = useMutate('api/join');
-  const { register, handleSubmit, reset, getValues } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
-
-  const handleJoin = (formData: FieldValues) => {
-    // const testData = {
-    //   email: getValues('email'),
-    //   password: getValues('password'),
-    // };
-    mutate(formData);
+  const handleJoin = async (formData: FieldValues) => {
+    await mutate(formData);
     console.log(data?.ok);
   };
 
@@ -89,6 +90,7 @@ export default function Join() {
     console.log(getValues('payLoad'));
   };
 
+  console.log(errors, '에러스');
   const setFeedback = (user: Object | null) => {
     if (user) {
       setEmailOk(false); //if user,
@@ -167,14 +169,23 @@ export default function Join() {
             type="string"
             register={register('password', {
               required: true,
-              pattern: CONST.PASSWORD_REG,
+              pattern: {
+                value: CONST.PASSWORD_REG,
+                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
+              },
               onChange(event) {
                 passwordDebounce(passwordCheck);
               },
             })}
           />
-          <InfoMessage className="text-xs text-red-400">
-            비밀번호를는 숫자 문자 특수문자를 한개이상 포함해야 합니다.
+          <InfoMessage>
+            {errors?.password?.message
+              ? `${errors.password.message}`
+              : data?.ok
+              ? '인증번호를 발송했습니다'
+              : loading
+              ? 'loading...'
+              : null}
           </InfoMessage>
         </InputContainer>
         <InputContainer $show={data?.ok}>
