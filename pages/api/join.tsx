@@ -46,27 +46,28 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
       },
     },
   });
+  console.log('token', token);
 
-  const messageBody = {
-    type: 'SMS',
-    from: '01020732223',
-    content: '호잇',
-    messages: [
-      {
-        to: '01020732223',
-        content: `인증 번호는 ${payLoad} 입니다.`,
-      },
-    ],
-  };
+  // const messageBody = {
+  //   type: 'SMS',
+  //   from: '01020732223',
+  //   content: '호잇',
+  //   messages: [
+  //     {
+  //       to: '01020732223',
+  //       content: `인증 번호는 ${payLoad} 입니다.`,
+  //     },
+  //   ],
+  // };
 
-  await fetch(url, {
-    method: 'POST',
-    headers: nCloudApiHeader(),
-    body: JSON.stringify(messageBody),
-  })
-    .then(res => res.json().catch(e => console.log(e)))
-    .then(json => console.log(json))
-    .catch(e => console.log(e));
+  // await fetch(url, {
+  //   method: 'POST',
+  //   headers: nCloudApiHeader(),
+  //   body: JSON.stringify(messageBody),
+  // })
+  //   .then(res => res.json().catch(e => console.log(e)))
+  //   .then(json => console.log(json))
+  //   .catch(e => console.log(e));
 
   const mailOptions = {
     from: process.env.NEXT_PUBLICK_EMAIL_ID,
@@ -77,7 +78,7 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
 
   const mailResult = await smtpTransport.sendMail(mailOptions);
 
-  return res.status(200).json({ ok: true, ...user });
+  return res.status(200).json({ ok: true, ...user, token: { ...token } });
 }
 
 export default apiHandler('POST', Join);

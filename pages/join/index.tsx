@@ -72,41 +72,49 @@ export default function Join() {
   const [emailDebounce, debounceLoading, timer] = useDebounce(600);
   const [passwordDebounce] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  const [mutate, dataReset, { data, loading }] = useMutate('api/join');
+  const [mutate, { data, loading }, dataReset] = useMutate('api/join');
+  const [confirm, { data: confirmResult, loading: confirmLoading }] =
+    useMutate('api/confirm');
   const {
     register,
     handleSubmit,
     reset,
-    getValues,
     formState: { errors },
   } = useForm();
 
   const handleJoin = async (formData: FieldValues) => {
+    if (loading) return;
+
     await mutate(formData);
-    console.log(data?.ok);
+    //do some reaction
+    focusElement('confirm');
   };
 
-  const onSubmit = () => {
-    console.log(getValues('payLoad'));
+  const onSubmit = (formData: FieldValues) => {
+    confirm(formData);
   };
 
-  console.log(errors, '에러스');
+  const focusElement = (id: string) => {
+    const element = document.querySelector(`#${id}`) as HTMLElement;
+
+    if (element) {
+      setTimeout(() => {
+        element.focus();
+      }, 10);
+    }
+  };
+
   const setFeedback = (user: Object | null) => {
     if (user) {
-      setEmailOk(false); //if user,
+      setEmailOk(false);
       setRefuse(CONST.EMAIL_EXIST);
       reset({ password: '' });
       dataReset();
     }
     if (!user) {
-      setEmailOk(true), setRefuse(null);
-      const passWordInput = document.querySelector('#password') as HTMLElement;
-      console.dir(passWordInput);
-      if (passWordInput) {
-        setTimeout(() => {
-          passWordInput.focus();
-        }, 10);
-      }
+      setEmailOk(true);
+      setRefuse(null);
+      focusElement('password');
     }
   };
 
@@ -118,11 +126,11 @@ export default function Join() {
       await fetch(`api/user/get?email=${userEmail}`)
         .then(response => response.json().catch(e => console.log(e)))
         .then(user => {
-          console.log(user);
           setFeedback(user);
         })
         .catch(e => console.log(e));
     }
+
     if (!passReg) {
       clearTimeout(timer);
       reset({ password: '' });
@@ -190,13 +198,18 @@ export default function Join() {
         </InputContainer>
         <InputContainer $show={data?.ok}>
           <Input
+            id="confirm"
             name="Secret Number"
             type="stirng"
             register={register('payLoad')}
           ></Input>
         </InputContainer>
         <Button className="w-full" $show={emailOk}>
-          {data?.ok ? '인증하기' : '회원가입'}
+          {loading
+            ? 'loading....'
+            : data?.ok
+            ? '인증하기 (가입완료)'
+            : '회원가입'}
         </Button>
       </JoinForm>
       <OrLine>
