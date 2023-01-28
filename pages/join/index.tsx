@@ -74,7 +74,7 @@ export default function Join() {
   const [Greeting, animationEnd] = WelcomeJoin();
   const [mutate, { data, loading }, dataReset] = useMutate('api/join');
   const [confirm, { data: confirmResult, loading: confirmLoading }] =
-    useMutate('api/confirm');
+    useMutate('api/join/confirm');
   const {
     register,
     handleSubmit,
@@ -82,26 +82,25 @@ export default function Join() {
     formState: { errors },
   } = useForm();
 
-  const handleJoin = async (formData: FieldValues) => {
-    if (loading) return;
-
-    await mutate(formData);
-    //do some reaction
-    focusElement('confirm');
-  };
-
-  const onSubmit = (formData: FieldValues) => {
-    confirm(formData);
-  };
-
   const focusElement = (id: string) => {
-    const element = document.querySelector(`#${id}`) as HTMLElement;
+    const element = document.querySelector(`${id}`) as HTMLElement;
 
     if (element) {
       setTimeout(() => {
         element.focus();
       }, 10);
     }
+  };
+
+  const handleJoin = async (formData: FieldValues) => {
+    if (loading) return;
+
+    await mutate(formData);
+    focusElement('#confirm');
+  };
+
+  const onSubmit = (formData: FieldValues) => {
+    confirm(formData);
   };
 
   const setFeedback = (user: Object | null) => {
@@ -114,7 +113,7 @@ export default function Join() {
     if (!user) {
       setEmailOk(true);
       setRefuse(null);
-      focusElement('password');
+      focusElement('#password');
     }
   };
 
@@ -199,7 +198,7 @@ export default function Join() {
         <InputContainer $show={data?.ok}>
           <Input
             id="confirm"
-            name="Secret Number"
+            name="Confirm number"
             type="stirng"
             register={register('payLoad')}
           ></Input>
