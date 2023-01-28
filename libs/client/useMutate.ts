@@ -1,16 +1,29 @@
 import { useState } from 'react';
 
-export default function useMutate(url: string) {
+interface MutationState<T> {
+  loading: boolean;
+  error: undefined | Error;
+  data?: T;
+}
+
+type MutationReturn<T> = [(data: any) => void, () => void, MutationState<T>];
+
+export default function useMutate<T = any>(url: string): MutationReturn<T> {
   //return state object
-  const [state, setState] = useState({
-    fetchLoading: false,
+  const [state, setState] = useState<MutationState<T>>({
+    loading: false,
     error: undefined,
     data: undefined,
   });
 
+  //resetData
+  const reset = () => {
+    setState(prev => ({ ...prev, data: undefined }));
+  };
+
   //return mutating function
   const mutationFunction = (data: any) => {
-    setState(prev => ({ ...prev, fetchLoading: true }));
+    setState(prev => ({ ...prev, loading: true }));
 
     fetch(url, {
       method: 'POST',
@@ -25,5 +38,5 @@ export default function useMutate(url: string) {
       .finally(() => setState(prev => ({ ...prev, fetchLoading: false })));
   };
 
-  return [mutationFunction, { ...state }] as const;
+  return [mutationFunction, reset, { ...state }];
 }

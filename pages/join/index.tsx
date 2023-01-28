@@ -31,10 +31,12 @@ const JoinForm = tw.form`
 const Button = tw.button<{ $show: boolean | string }>`
   ${props => (props.$show ? '' : 'hidden')}
   w-full h-8
-  bg-gray-100
+  bg-gray-300
   rounded-md
-  hover:bg-gray-200
+  hover:bg-gray-400
   mt-3
+  font-bold
+  text-gray-700
 `;
 
 const InputContainer = tw.div<{ $show: boolean | string }>`
@@ -43,13 +45,13 @@ const InputContainer = tw.div<{ $show: boolean | string }>`
 `;
 
 const KakaoButton = tw(Button)`
-  bg-yellow-300
-  hover:bg-yellow-200
+  bg-yellow-200
+  hover:bg-yellow-100
 `;
 
 const GithubButton = tw(Button)`
-  bg-black text-white
-  hover:bg-gray-700
+  bg-gray-800 text-white
+  hover:bg-gray-500
 `;
 
 const OrLine = tw.div`
@@ -61,47 +63,85 @@ const LoginWith = tw.div`
 `;
 
 const InfoMessage = tw.p`
-text-xs text-red-300 mt-1 ml-2
+text-xs text-slate-500 mt-1 ml-2
 `;
 
 export default function Join() {
-  const [emailOk, setEmailOk] = useState<boolean>(false);
+  const [emailOk, setEmailOk] = useState(false);
   const [refuse, setRefuse] = useState<string | null>(null);
-  const [emailDebounce, { loading }, timer] = useDebounce(600);
+  const [emailDebounce, debounceLoading, timer] = useDebounce(600);
+  const [passwordDebounce] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  const [mutate, { data }] = useMutate('api/join');
-  const { register, handleSubmit, watch, reset } = useForm();
+  const [mutate, dataReset, { data, loading }] = useMutate('api/join');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
-  const onSubmit = (formData: FieldValues) => {
-    mutate(formData);
-    console.log(data);
+  const handleJoin = async (formData: FieldValues) => {
+    await mutate(formData);
+    console.log(data?.ok);
   };
 
+  const onSubmit = () => {
+    console.log(getValues('payLoad'));
+  };
+
+  console.log(errors, '에러스');
   const setFeedback = (user: Object | null) => {
-    user
-      ? (setEmailOk(false), //if user,
-        setRefuse(CONST.EMAIL_EXIST),
-        reset({ password: '' }))
-      : (setEmailOk(true), setRefuse(null)); //if no user
+    if (user) {
+      setEmailOk(false); //if user,
+      setRefuse(CONST.EMAIL_EXIST);
+      reset({ password: '' });
+      dataReset();
+    }
+    if (!user) {
+      setEmailOk(true), setRefuse(null);
+      const passWordInput = document.querySelector('#password') as HTMLElement;
+      console.dir(passWordInput);
+      if (passWordInput) {
+        setTimeout(() => {
+          passWordInput.focus();
+        }, 10);
+      }
+    }
   };
 
-  const userApiDebounce = async (pass: boolean) => {
-    if (pass) {
-      const user = await emailDebounce(`api/user/get?email=${watch().email}`);
-      setFeedback(user!);
+  const userApiDebounce = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const userEmail = e.target.value;
+    const passReg = CONST.EMAIL_REG.test(userEmail);
+
+    if (passReg) {
+      await fetch(`api/user/get?email=${userEmail}`)
+        .then(response => response.json().catch(e => console.log(e)))
+        .then(user => {
+          console.log(user);
+          setFeedback(user);
+        })
+        .catch(e => console.log(e));
     }
-    if (!pass) {
+    if (!passReg) {
       clearTimeout(timer);
       reset({ password: '' });
       setEmailOk(() => false);
       setRefuse(null);
+      dataReset();
     }
+  };
+
+  const passwordCheck = async () => {
+    console.log('password Checking');
   };
 
   return (
     <JoinFormContainerLargeScreen>
       <Greeting></Greeting>
-      <JoinForm onSubmit={handleSubmit(onSubmit)}>
+      <JoinForm
+        onSubmit={data?.ok ? handleSubmit(onSubmit) : handleSubmit(handleJoin)}
+      >
         <InputContainer $show={animationEnd}>
           <Input
             name="email"
@@ -109,12 +149,13 @@ export default function Join() {
             register={register('email', {
               required: true,
               pattern: CONST.EMAIL_REG,
-              onChange: e =>
-                userApiDebounce(CONST.EMAIL_REG.test(e.target.value)),
+              onChange(event) {
+                emailDebounce(() => userApiDebounce(event));
+              },
             })}
           />
           <InfoMessage>
-            {loading
+            {debounceLoading
               ? 'checking..'
               : emailOk
               ? '☑️'
@@ -123,23 +164,39 @@ export default function Join() {
         </InputContainer>
         <InputContainer $show={emailOk}>
           <Input
+            id="password"
             name="password"
             type="string"
             register={register('password', {
               required: true,
               pattern: {
                 value: CONST.PASSWORD_REG,
-                message: CONST.PASSWORD_ERR,
+                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
+              },
+              onChange(event) {
+                passwordDebounce(passwordCheck);
               },
             })}
           />
-          <InfoMessage className="text-xs text-red-400">
-            비밀번호를 입력해 주세요
+          <InfoMessage>
+            {errors?.password?.message
+              ? `${errors.password.message}`
+              : data?.ok
+              ? '인증번호를 발송했습니다'
+              : loading
+              ? 'loading...'
+              : null}
           </InfoMessage>
         </InputContainer>
-
+        <InputContainer $show={data?.ok}>
+          <Input
+            name="Secret Number"
+            type="stirng"
+            register={register('payLoad')}
+          ></Input>
+        </InputContainer>
         <Button className="w-full" $show={emailOk}>
-          Join
+          {data?.ok ? '인증하기' : '회원가입'}
         </Button>
       </JoinForm>
       <OrLine>
