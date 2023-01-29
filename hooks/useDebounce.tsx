@@ -12,7 +12,7 @@ export default function deBounce(ms: number = 500) {
     }
 
     timer = setTimeout(async () => {
-      setLoading(prev => true);
+      setLoading(() => true);
       await fn();
       setLoading(() => false);
     }, ms);

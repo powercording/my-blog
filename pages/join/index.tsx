@@ -8,6 +8,7 @@ import WelcomeJoin from '@components/WelcomeJoin';
 import useMutate from '@libs/client/useMutate';
 import { CONST } from '@libs/constant/CONST';
 import Link from 'next/link';
+import useMutation from '@libs/client/useMutation';
 
 const JoinFormContainer = tw.div`
   w-auto px-4 py-4
@@ -74,7 +75,7 @@ export default function Join() {
   const [Greeting, animationEnd] = WelcomeJoin();
   const [mutate, { data, loading }, dataReset] = useMutate('api/join');
   const [confirm, { data: confirmResult, loading: confirmLoading }] =
-    useMutate('api/join/confirm');
+    useMutation('api/join/confirm');
   const {
     register,
     handleSubmit,
@@ -92,6 +93,8 @@ export default function Join() {
     }
   };
 
+  //handleJoin 과 onSubmit 이 같은 form data 를 보내므로
+  //스테이트에 따라서 동작하게 하면 하나로 합칠 수 있을듯
   const handleJoin = async (formData: FieldValues) => {
     if (loading) return;
 
@@ -99,8 +102,12 @@ export default function Join() {
     focusElement('#confirm');
   };
 
-  const onSubmit = (formData: FieldValues) => {
-    confirm(formData);
+  const onSubmit = async (formData: FieldValues) => {
+    if (confirmLoading) {
+      return;
+    }
+    const tyee = await confirm(formData);
+    console.log(tyee);
   };
 
   const setFeedback = (user: Object | null) => {
@@ -200,7 +207,7 @@ export default function Join() {
             id="confirm"
             name="Confirm number"
             type="stirng"
-            register={register('payLoad')}
+            register={register('payload')}
           ></Input>
         </InputContainer>
         <Button className="w-full" $show={emailOk}>

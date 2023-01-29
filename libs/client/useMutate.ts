@@ -24,7 +24,6 @@ export default function useMutate<T = any>(url: string): MutationReturn<T> {
   //return mutating function
   const mutationFunction = (data: any) => {
     setState(prev => ({ ...prev, loading: true }));
-
     fetch(url, {
       method: 'POST',
       headers: {
@@ -33,9 +32,10 @@ export default function useMutate<T = any>(url: string): MutationReturn<T> {
       body: JSON.stringify(data),
     })
       .then(res => res.json().catch(() => {}))
-      .then(json => setState(prev => ({ ...prev, data: json })))
-      .catch(error => setState(prev => ({ ...prev, error })))
-      .finally(() => setState(prev => ({ ...prev, loading: false })));
+      .then(json => {
+        setState(prev => ({ ...prev, data: json, loading: false }));
+      })
+      .catch(error => setState(prev => ({ ...prev, error, loading: false })));
   };
 
   return [mutationFunction, { ...state }, reset];
