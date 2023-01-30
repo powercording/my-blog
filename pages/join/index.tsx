@@ -72,17 +72,21 @@ export default function Join() {
     joinDataReset();
   };
 
-  //handleJoin 과 onSubmit 이 같은 form data 를 보내므로
-  //스테이트에 따라서 동작하게 하면 하나로 합칠 수 있을듯
-  const handleJoin = async (formData: FieldValues) => {
-    if (loading) return;
-
+  const checkPasswordError = (formData: FieldValues) => {
     const { password, repeat } = formData;
     if (password !== repeat) {
       return setError('password', {
         message: '비밀번호가 일치해야 합니다.',
       });
     }
+  };
+
+  //handleJoin 과 onSubmit 이 같은 form data 를 보내므로
+  //스테이트에 따라서 동작하게 하면 하나로 합칠 수 있을듯
+  const handleJoin = async (formData: FieldValues) => {
+    if (loading) return;
+
+    checkPasswordError(formData);
 
     await userJoin(formData);
     setTimeout(() => {
@@ -94,6 +98,8 @@ export default function Join() {
     if (confirmLoading) {
       return;
     }
+
+    checkPasswordError(formData);
 
     const confirmOutput = await confirm(formData);
     console.log(confirmOutput);
@@ -130,6 +136,10 @@ export default function Join() {
       : (clearTimeout(timer), setRefuse(null));
   };
 
+  const toggleDisabled = (e: any) => {
+    e.target.removeAttribute('disabled');
+  };
+
   return (
     <JoinFormContainerLargeScreen>
       <Greeting></Greeting>
@@ -138,6 +148,7 @@ export default function Join() {
       >
         <InputContainer $show={animationEnd}>
           <Input
+            onClick={toggleDisabled}
             name="email"
             type="text"
             register={register('email', {
@@ -145,6 +156,9 @@ export default function Join() {
               pattern: CONST.EMAIL_REG,
               onChange(event) {
                 emailDebounce(() => userApiDebounce(event));
+              },
+              onBlur(event) {
+                event.target.setAttribute('disabled', true);
               },
             })}
           />

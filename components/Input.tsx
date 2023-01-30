@@ -23,7 +23,7 @@ const CustomLabel = tw.label`
 const CustomInput = tw.input`
   text-gray-500
   border-gray-400 border-b-2 rounded-sm
-  focus:outline-none focus:ring-2 focus:ring-offset-1 focus: ring-gray-400
+  focus:outline-dashed focus:outline-offset-2 focus:outline-2 focus:outline-slate-500
   pl-3
 `;
 
