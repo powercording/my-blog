@@ -50,11 +50,11 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
 
   // const messageBody = {
   //   type: 'SMS',
-  //   from: '01020732223',
+  //   from: '핸드폰번호',
   //   content: '호잇',
   //   messages: [
   //     {
-  //       to: '01020732223',
+  //       to: '핸드폰번호',
   //       content: `인증 번호는 ${payLoad} 입니다.`,
   //     },
   //   ],

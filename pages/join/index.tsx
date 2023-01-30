@@ -72,6 +72,8 @@ export default function Join() {
     joinDataReset();
   };
 
+  //폼 전송 단계에 따른 폼상태값 검증
+  //에러 셋팅시 submit 차단.
   const checkPasswordError = (formData: FieldValues) => {
     const { password, repeat } = formData;
     if (password !== repeat) {
@@ -81,8 +83,6 @@ export default function Join() {
     }
   };
 
-  //handleJoin 과 onSubmit 이 같은 form data 를 보내므로
-  //스테이트에 따라서 동작하게 하면 하나로 합칠 수 있을듯
   const handleJoin = async (formData: FieldValues) => {
     if (loading) return;
 
