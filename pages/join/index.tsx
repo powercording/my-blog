@@ -7,12 +7,12 @@ import Input from '@components/Input';
 import WelcomeJoin from '@components/WelcomeJoin';
 import useMutate from '@libs/client/useMutate';
 import { CONST } from '@libs/constant/CONST';
-import Link from 'next/link';
 
 const JoinFormContainer = tw.div`
   w-auto px-4 py-4
   space-y-3 overflow-hidden
   h-auto
+  mx-auto
 `;
 
 const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
@@ -28,6 +28,11 @@ const JoinForm = tw.form`
   gap-3
 `;
 
+const InputContainer = tw.div<{ $show: boolean | string }>`
+  relative
+  ${props => (props.$show ? '' : 'hidden')}
+`;
+
 const Button = tw.button<{ $show: boolean | string }>`
   ${props => (props.$show ? '' : 'hidden')}
   w-full h-8
@@ -39,29 +44,6 @@ const Button = tw.button<{ $show: boolean | string }>`
   text-gray-700
 `;
 
-const InputContainer = tw.div<{ $show: boolean | string }>`
-  relative
-  ${props => (props.$show ? '' : 'hidden')}
-`;
-
-const KakaoButton = tw(Button)`
-  bg-yellow-200
-  hover:bg-yellow-100
-`;
-
-const GithubButton = tw(Button)`
-  bg-gray-800 text-white
-  hover:bg-gray-500
-`;
-
-const OrLine = tw.div`
-relative text-center top-6
-`;
-
-const LoginWith = tw.div`
-  absolute border-t-2 border-gray-300 w-full
-`;
-
 const InfoMessage = tw.p`
 text-xs text-slate-500 mt-1 ml-2
 `;
@@ -70,70 +52,91 @@ export default function Join() {
   const [emailOk, setEmailOk] = useState(false);
   const [refuse, setRefuse] = useState<string | null>(null);
   const [emailDebounce, debounceLoading, timer] = useDebounce(600);
-  const [passwordDebounce] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  const [mutate, dataReset, { data, loading }] = useMutate('api/join');
+  const [userJoin, { data, loading }, joinDataReset] = useMutate('api/join');
+  const [confirm, { data: confirmResult, loading: confirmLoading }] =
+    useMutate('api/join/confirm');
   const {
     register,
     handleSubmit,
     reset,
-    getValues,
     formState: { errors },
+    setFocus,
+    setError,
   } = useForm();
 
+  //reset 을 좀더 fancy 하게 사용할 수있을까.
+  const resetState = () => {
+    setEmailOk(() => false);
+    reset({ password: '', repeat: '', payload: '' });
+    joinDataReset();
+  };
+
+  //폼 전송 단계에 따른 폼상태값 검증
+  //에러 셋팅시 submit 차단.
+  const checkPasswordError = (formData: FieldValues) => {
+    const { password, repeat } = formData;
+    if (password !== repeat) {
+      return setError('password', {
+        message: '비밀번호가 일치해야 합니다.',
+      });
+    }
+  };
+
   const handleJoin = async (formData: FieldValues) => {
-    await mutate(formData);
-    console.log(data?.ok);
+    if (loading) return;
+
+    checkPasswordError(formData);
+
+    await userJoin(formData);
+    setTimeout(() => {
+      setFocus('payload');
+    }, 0);
   };
 
-  const onSubmit = () => {
-    console.log(getValues('payLoad'));
+  const onSubmit = async (formData: FieldValues) => {
+    if (confirmLoading) {
+      return;
+    }
+
+    checkPasswordError(formData);
+
+    const confirmOutput = await confirm(formData);
   };
 
-  console.log(errors, '에러스');
+  //아래 나열된 조건식을 좀 줄여보기.
   const setFeedback = (user: Object | null) => {
     if (user) {
-      setEmailOk(false); //if user,
       setRefuse(CONST.EMAIL_EXIST);
-      reset({ password: '' });
-      dataReset();
+      resetState();
     }
     if (!user) {
-      setEmailOk(true), setRefuse(null);
-      const passWordInput = document.querySelector('#password') as HTMLElement;
-      console.dir(passWordInput);
-      if (passWordInput) {
-        setTimeout(() => {
-          passWordInput.focus();
-        }, 10);
-      }
+      setEmailOk(true);
+      setRefuse(null);
+      setTimeout(() => {
+        setFocus('password');
+      }, 0);
     }
   };
 
   const userApiDebounce = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const userEmail = e.target.value;
-    const passReg = CONST.EMAIL_REG.test(userEmail);
+    const regPass = CONST.EMAIL_REG.test(userEmail);
 
-    if (passReg) {
-      await fetch(`api/user/get?email=${userEmail}`)
-        .then(response => response.json().catch(e => console.log(e)))
-        .then(user => {
-          console.log(user);
-          setFeedback(user);
-        })
-        .catch(e => console.log(e));
-    }
-    if (!passReg) {
-      clearTimeout(timer);
-      reset({ password: '' });
-      setEmailOk(() => false);
-      setRefuse(null);
-      dataReset();
-    }
+    resetState();
+
+    regPass
+      ? await fetch(`api/user/get?email=${userEmail}`)
+          .then(response => response.json().catch(e => console.log(e)))
+          .then(user => {
+            setFeedback(user);
+          })
+          .catch(e => console.log(e))
+      : (clearTimeout(timer), setRefuse(null));
   };
 
-  const passwordCheck = async () => {
-    console.log('password Checking');
+  const toggleDisabled = (e: any) => {
+    e.target.removeAttribute('disabled');
   };
 
   return (
@@ -144,6 +147,7 @@ export default function Join() {
       >
         <InputContainer $show={animationEnd}>
           <Input
+            onClick={toggleDisabled}
             name="email"
             type="text"
             register={register('email', {
@@ -151,6 +155,9 @@ export default function Join() {
               pattern: CONST.EMAIL_REG,
               onChange(event) {
                 emailDebounce(() => userApiDebounce(event));
+              },
+              onBlur(event) {
+                event.target.setAttribute('disabled', true);
               },
             })}
           />
@@ -164,17 +171,26 @@ export default function Join() {
         </InputContainer>
         <InputContainer $show={emailOk}>
           <Input
+            className="mb-3"
             id="password"
             name="password"
-            type="string"
+            type="password"
             register={register('password', {
               required: true,
               pattern: {
                 value: CONST.PASSWORD_REG,
                 message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
               },
-              onChange(event) {
-                passwordDebounce(passwordCheck);
+            })}
+          />
+          <Input
+            name="password 확인"
+            type="password"
+            register={register('repeat', {
+              required: true,
+              pattern: {
+                value: CONST.PASSWORD_REG,
+                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
               },
             })}
           />
@@ -190,27 +206,20 @@ export default function Join() {
         </InputContainer>
         <InputContainer $show={data?.ok}>
           <Input
-            name="Secret Number"
+            id="confirm"
+            name="Confirm number"
             type="stirng"
-            register={register('payLoad')}
+            register={register('payload')}
           ></Input>
         </InputContainer>
         <Button className="w-full" $show={emailOk}>
-          {data?.ok ? '인증하기' : '회원가입'}
+          {loading
+            ? 'loading....'
+            : data?.ok
+            ? '인증하기 (가입완료)'
+            : '회원가입'}
         </Button>
       </JoinForm>
-      <OrLine>
-        <LoginWith />
-        <span className="relative bg-white px-2 -top-3">or</span>
-      </OrLine>
-      <div className="flex gap-2">
-        <Link href="api/login/kakaoLogin" className="w-full">
-          <KakaoButton $show={true}>kakao Login</KakaoButton>
-        </Link>
-        <Link href="" className="w-full">
-          <GithubButton $show={true}>github Login</GithubButton>
-        </Link>
-      </div>
     </JoinFormContainerLargeScreen>
   );
 }

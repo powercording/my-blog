@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 let timer: any;
 
-export default function deBounce(ms: number = 500) {
+export default function  deBounce(ms: number = 500) {
   const [loading, setLoading] = useState(false);
 
   const useDebounce = async (fn: () => void) => {
@@ -12,7 +12,7 @@ export default function deBounce(ms: number = 500) {
     }
 
     timer = setTimeout(async () => {
-      setLoading(prev => true);
+      setLoading(() => true);
       await fn();
       setLoading(() => false);
     }, ms);

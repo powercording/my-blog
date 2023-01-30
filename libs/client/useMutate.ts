@@ -6,7 +6,7 @@ interface MutationState<T> {
   data?: T;
 }
 
-type MutationReturn<T> = [(data: any) => void, () => void, MutationState<T>];
+type MutationReturn<T> = [(data: any) => void, MutationState<T>, () => void];
 
 export default function useMutate<T = any>(url: string): MutationReturn<T> {
   //return state object
@@ -16,27 +16,36 @@ export default function useMutate<T = any>(url: string): MutationReturn<T> {
     data: undefined,
   });
 
+  //return fetch options to mutation function.
+  const fetchOptions = (data: any) => {
+    return {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    };
+  };
+
   //resetData
   const reset = () => {
-    setState(prev => ({ ...prev, data: undefined }));
+    setState(prev => ({ loading: false, error: undefined, data: undefined }));
   };
 
   //return mutating function
   const mutationFunction = (data: any) => {
     setState(prev => ({ ...prev, loading: true }));
 
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
+    const mutate = fetch(url, fetchOptions(data))
       .then(res => res.json().catch(() => {}))
-      .then(json => setState(prev => ({ ...prev, data: json })))
-      .catch(error => setState(prev => ({ ...prev, error })))
-      .finally(() => setState(prev => ({ ...prev, fetchLoading: false })));
+      .then(json => {
+        setState(prev => ({ ...prev, data: json, loading: false }));
+        return json;
+      })
+      .catch(error => setState(prev => ({ ...prev, error, loading: false })));
+
+    return mutate;
   };
 
-  return [mutationFunction, reset, { ...state }];
+  return [mutationFunction, { ...state }, reset];
 }

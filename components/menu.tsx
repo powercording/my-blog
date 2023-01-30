@@ -29,11 +29,30 @@ border-2
 `;
 
 const LoginOrJoin = tw(NameTag)`
-  border-2
   mx-auto
   mt-auto
   flex
   gap-2
+`;
+
+const Button = tw.button<{ $show: boolean | string }>`
+  ${props => (props.$show ? '' : 'hidden')}
+  w-full h-8
+  bg-gray-300
+  rounded-md
+  hover:bg-gray-400
+  font-bold
+  text-gray-700
+`;
+
+const KakaoButton = tw(Button)`
+  bg-yellow-200
+  hover:bg-yellow-100
+`;
+
+const GithubButton = tw(Button)`
+  bg-gray-800 text-white
+  hover:bg-gray-500
 `;
 
 export default function Menu({ blogName }: BlogName) {
@@ -51,6 +70,14 @@ export default function Menu({ blogName }: BlogName) {
           <span>가입</span>
         </Link>
       </LoginOrJoin>
+      <div className="flex gap-2 py-3">
+        <Link href="api/login/kakaoLogin" className="w-full">
+          <KakaoButton $show={true}>kakao Login</KakaoButton>
+        </Link>
+        <Link href="" className="w-full">
+          <GithubButton $show={true}>github Login</GithubButton>
+        </Link>
+      </div>
     </NavContainer>
   );
 }

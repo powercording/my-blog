@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import tw from 'tailwind-styled-components';
 
 const typeEffect = keyframes`
   50% {
@@ -18,6 +19,10 @@ const WelcomeAnimation = styled.div<{
     animation: ${props => (props.welcomeDone ? '' : typeEffect)} 0.4s step-end
       infinite;
   }
+`;
+
+const WelcomeMessage = tw(WelcomeAnimation)`
+  text-slate-500
 `;
 const delay = (ms: number) => {
   return new Promise(res => setTimeout(res, ms));
@@ -52,9 +57,9 @@ export default function WelcomeJoin() {
 
   const WelcomeLine = () => {
     return (
-      <WelcomeAnimation welcomeDone={welcomeDone} id="welcome">
+      <WelcomeMessage welcomeDone={welcomeDone} id="welcome">
         {typeEffect}
-      </WelcomeAnimation>
+      </WelcomeMessage>
     );
   };
 
