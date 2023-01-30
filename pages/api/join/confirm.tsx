@@ -2,44 +2,52 @@ import { withIronSessionApiRoute } from 'iron-session/next';
 import apiHandler from '@libs/server/apiHandler';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
+import { sessionHandler } from '@libs/server/sessionHandler';
 
 async function Confirm(req: NextApiRequest, res: NextApiResponse) {
   const { payload, email } = req.body;
 
-  const findToken = client.token.findUnique({
+  const token = await client.token.findUnique({
     where: {
       payload: payload + '',
     },
-  });
-
-  const findUser = client.user.findUnique({
-    where: {
-      email,
+    include: {
+      user: true,
     },
   });
-
-  const [token, user] = await Promise.all([findToken, findUser]);
 
   if (!token) {
     return res.status(404).json({ ok: false });
   }
 
-  if (token?.userId !== user?.id) {
+  if (token?.user?.email !== email) {
     return res.status(404).json({ ok: false });
   }
 
-  if (token?.userId === user?.id) {
+  const deleteToken = client.token.deleteMany({
+    where: {
+      userId: token.userId,
+    },
+  });
+
+  const validUser = client.user.update({
+    where: {
+      id: token.userId,
+    },
+    data: {
+      vaild: true,
+    },
+  });
+
+  await Promise.allSettled([deleteToken, validUser]);
+
+  if (token?.user?.email === email) {
     req.session.user = {
       id: token?.userId,
     };
   }
   await req.session.save();
-
-  console.log(`리퀘스트 세션 ${req.session}`);
   res.status(200).json({ ok: true });
 }
 
-export default withIronSessionApiRoute(apiHandler('POST', Confirm), {
-  cookieName: 'myblog-session',
-  password: process.env.NEXT_PUBLIC_SESSION_PWD + '',
-});
+export default sessionHandler(apiHandler('POST', Confirm));

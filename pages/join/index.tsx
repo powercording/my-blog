@@ -102,7 +102,6 @@ export default function Join() {
     checkPasswordError(formData);
 
     const confirmOutput = await confirm(formData);
-    console.log(confirmOutput);
   };
 
   //아래 나열된 조건식을 좀 줄여보기.
