@@ -33,7 +33,13 @@ export default function Input(inputProps: InputProps) {
   return (
     <InputContainer>
       <CustomLabel htmlFor={name}>{name}</CustomLabel>
-      <CustomInput id={name} type={type} {...register} {...rest}/>
+      <CustomInput
+        id={name}
+        type={type}
+        {...register}
+        {...rest}
+        autoComplete="off"
+      />
     </InputContainer>
   );
 }

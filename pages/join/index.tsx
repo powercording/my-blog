@@ -7,13 +7,12 @@ import Input from '@components/Input';
 import WelcomeJoin from '@components/WelcomeJoin';
 import useMutate from '@libs/client/useMutate';
 import { CONST } from '@libs/constant/CONST';
-import Link from 'next/link';
-import useMutation from '@libs/client/useMutation';
 
 const JoinFormContainer = tw.div`
   w-auto px-4 py-4
   space-y-3 overflow-hidden
   h-auto
+  mx-auto
 `;
 
 const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
@@ -29,6 +28,11 @@ const JoinForm = tw.form`
   gap-3
 `;
 
+const InputContainer = tw.div<{ $show: boolean | string }>`
+  relative
+  ${props => (props.$show ? '' : 'hidden')}
+`;
+
 const Button = tw.button<{ $show: boolean | string }>`
   ${props => (props.$show ? '' : 'hidden')}
   w-full h-8
@@ -40,29 +44,6 @@ const Button = tw.button<{ $show: boolean | string }>`
   text-gray-700
 `;
 
-const InputContainer = tw.div<{ $show: boolean | string }>`
-  relative
-  ${props => (props.$show ? '' : 'hidden')}
-`;
-
-const KakaoButton = tw(Button)`
-  bg-yellow-200
-  hover:bg-yellow-100
-`;
-
-const GithubButton = tw(Button)`
-  bg-gray-800 text-white
-  hover:bg-gray-500
-`;
-
-const OrLine = tw.div`
-relative text-center top-6
-`;
-
-const LoginWith = tw.div`
-  absolute border-t-2 border-gray-300 w-full
-`;
-
 const InfoMessage = tw.p`
 text-xs text-slate-500 mt-1 ml-2
 `;
@@ -71,26 +52,24 @@ export default function Join() {
   const [emailOk, setEmailOk] = useState(false);
   const [refuse, setRefuse] = useState<string | null>(null);
   const [emailDebounce, debounceLoading, timer] = useDebounce(600);
-  const [passwordDebounce] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
-  const [mutate, { data, loading }, dataReset] = useMutate('api/join');
+  const [userJoin, { data, loading }, joinDataReset] = useMutate('api/join');
   const [confirm, { data: confirmResult, loading: confirmLoading }] =
-    useMutation('api/join/confirm');
+    useMutate('api/join/confirm');
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
+    setFocus,
+    setError,
   } = useForm();
 
-  const focusElement = (id: string) => {
-    const element = document.querySelector(`${id}`) as HTMLElement;
-
-    if (element) {
-      setTimeout(() => {
-        element.focus();
-      }, 10);
-    }
+  //reset 을 좀더 fancy 하게 사용할 수있을까.
+  const resetState = () => {
+    setEmailOk(() => false);
+    reset({ password: '', repeat: '', payload: '' });
+    joinDataReset();
   };
 
   //handleJoin 과 onSubmit 이 같은 form data 를 보내므로
@@ -98,56 +77,57 @@ export default function Join() {
   const handleJoin = async (formData: FieldValues) => {
     if (loading) return;
 
-    await mutate(formData);
-    focusElement('#confirm');
+    const { password, repeat } = formData;
+    if (password !== repeat) {
+      return setError('password', {
+        message: '비밀번호가 일치해야 합니다.',
+      });
+    }
+
+    await userJoin(formData);
+    setTimeout(() => {
+      setFocus('payload');
+    }, 0);
   };
 
   const onSubmit = async (formData: FieldValues) => {
     if (confirmLoading) {
       return;
     }
-    const tyee = await confirm(formData);
-    console.log(tyee);
+
+    const confirmOutput = await confirm(formData);
+    console.log(confirmOutput);
   };
 
+  //아래 나열된 조건식을 좀 줄여보기.
   const setFeedback = (user: Object | null) => {
     if (user) {
-      setEmailOk(false);
       setRefuse(CONST.EMAIL_EXIST);
-      reset({ password: '' });
-      dataReset();
+      resetState();
     }
     if (!user) {
       setEmailOk(true);
       setRefuse(null);
-      focusElement('#password');
+      setTimeout(() => {
+        setFocus('password');
+      }, 0);
     }
   };
 
   const userApiDebounce = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const userEmail = e.target.value;
-    const passReg = CONST.EMAIL_REG.test(userEmail);
+    const regPass = CONST.EMAIL_REG.test(userEmail);
 
-    if (passReg) {
-      await fetch(`api/user/get?email=${userEmail}`)
-        .then(response => response.json().catch(e => console.log(e)))
-        .then(user => {
-          setFeedback(user);
-        })
-        .catch(e => console.log(e));
-    }
+    resetState();
 
-    if (!passReg) {
-      clearTimeout(timer);
-      reset({ password: '' });
-      setEmailOk(() => false);
-      setRefuse(null);
-      dataReset();
-    }
-  };
-
-  const passwordCheck = async () => {
-    console.log('password Checking');
+    regPass
+      ? await fetch(`api/user/get?email=${userEmail}`)
+          .then(response => response.json().catch(e => console.log(e)))
+          .then(user => {
+            setFeedback(user);
+          })
+          .catch(e => console.log(e))
+      : (clearTimeout(timer), setRefuse(null));
   };
 
   return (
@@ -178,17 +158,26 @@ export default function Join() {
         </InputContainer>
         <InputContainer $show={emailOk}>
           <Input
+            className="mb-3"
             id="password"
             name="password"
-            type="string"
+            type="password"
             register={register('password', {
               required: true,
               pattern: {
                 value: CONST.PASSWORD_REG,
                 message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
               },
-              onChange(event) {
-                passwordDebounce(passwordCheck);
+            })}
+          />
+          <Input
+            name="password 확인"
+            type="password"
+            register={register('repeat', {
+              required: true,
+              pattern: {
+                value: CONST.PASSWORD_REG,
+                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
               },
             })}
           />
@@ -218,18 +207,6 @@ export default function Join() {
             : '회원가입'}
         </Button>
       </JoinForm>
-      <OrLine>
-        <LoginWith />
-        <span className="relative bg-white px-2 -top-3">or</span>
-      </OrLine>
-      <div className="flex gap-2">
-        <Link href="api/login/kakaoLogin" className="w-full">
-          <KakaoButton $show={true}>kakao Login</KakaoButton>
-        </Link>
-        <Link href="" className="w-full">
-          <GithubButton $show={true}>github Login</GithubButton>
-        </Link>
-      </div>
     </JoinFormContainerLargeScreen>
   );
 }
