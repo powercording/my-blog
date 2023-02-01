@@ -1,4 +1,3 @@
-import { withIronSessionApiRoute } from 'iron-session/next';
 import apiHandler from '@libs/server/apiHandler';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
@@ -9,12 +8,13 @@ async function Confirm(req: NextApiRequest, res: NextApiResponse) {
 
   const token = await client.token.findUnique({
     where: {
-      payload: payload + '',
+      payload: `${payload}`,
     },
     include: {
       user: true,
     },
   });
+  console.log(token);
 
   if (!token) {
     return res.status(404).json({ ok: false });
@@ -39,7 +39,8 @@ async function Confirm(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  await Promise.allSettled([deleteToken, validUser]);
+  const [, user] = await Promise.allSettled([deleteToken, validUser]);
+  console.log(user);
 
   if (token?.user?.email === email) {
     req.session.user = {
@@ -47,7 +48,7 @@ async function Confirm(req: NextApiRequest, res: NextApiResponse) {
     };
   }
   await req.session.save();
-  res.status(200).json({ ok: true });
+  res.status(200).json({ ok: true, user });
 }
 
 export default sessionHandler(apiHandler('POST', Confirm));

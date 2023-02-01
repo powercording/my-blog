@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FieldValues } from 'react-hook-form/dist/types';
 import useDebounce from '@hooks/useDebounce';
@@ -7,6 +7,7 @@ import Input from '@components/Input';
 import WelcomeJoin from '@components/WelcomeJoin';
 import useMutate from '@libs/client/useMutate';
 import { CONST } from '@libs/constant/CONST';
+import { useRouter } from 'next/router';
 
 const JoinFormContainer = tw.div`
   w-auto px-4 py-4
@@ -64,6 +65,15 @@ export default function Join() {
     setFocus,
     setError,
   } = useForm();
+  const router = useRouter();
+
+  console.log(router);
+
+  // useEffect(() => {
+  //   if (confirmResult?.ok) {
+  //     router.push('/');
+  //   }
+  // }, [confirmResult, router]);
 
   //reset 을 좀더 fancy 하게 사용할 수있을까.
   const resetState = () => {
@@ -102,6 +112,9 @@ export default function Join() {
     checkPasswordError(formData);
 
     const confirmOutput = await confirm(formData);
+    if (confirmOutput.ok === true) {
+      router.push('/');
+    }
   };
 
   //아래 나열된 조건식을 좀 줄여보기.
