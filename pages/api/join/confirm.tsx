@@ -14,7 +14,7 @@ async function Confirm(req: NextApiRequest, res: NextApiResponse) {
       user: true,
     },
   });
-  console.log(token);
+  console.log('token data with user in confirm Api', token);
 
   if (!token) {
     return res.status(404).json({ ok: false });
@@ -51,4 +51,6 @@ async function Confirm(req: NextApiRequest, res: NextApiResponse) {
   res.status(200).json({ ok: true, user });
 }
 
-export default sessionHandler(apiHandler('POST', Confirm));
+export default sessionHandler(
+  apiHandler({ method: 'POST', fn: Confirm, isPrivate: false }),
+);

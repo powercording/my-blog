@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from '@libs/server/apiHandler';
+import { sessionHandler } from '@libs/server/sessionHandler';
 
 const uri = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_LOGIN_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_KAKAO_REDIRECT}&response_type=code`;
 
@@ -9,5 +10,6 @@ export async function kakaoLogin(req: NextApiRequest, res: NextApiResponse) {
   );
 }
 
-export default apiHandler('GET', kakaoLogin);
-
+export default sessionHandler(
+  apiHandler({ method: 'GET', fn: kakaoLogin, isPrivate: false }),
+);

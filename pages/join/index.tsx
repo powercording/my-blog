@@ -67,13 +67,11 @@ export default function Join() {
   } = useForm();
   const router = useRouter();
 
-  console.log(router);
-
-  // useEffect(() => {
-  //   if (confirmResult?.ok) {
-  //     router.push('/');
-  //   }
-  // }, [confirmResult, router]);
+  useEffect(() => {
+    if (confirmResult?.ok) {
+      router.push('/');
+    }
+  }, [confirmResult, router]);
 
   //reset 을 좀더 fancy 하게 사용할 수있을까.
   const resetState = () => {
@@ -82,8 +80,7 @@ export default function Join() {
     joinDataReset();
   };
 
-  //폼 전송 단계에 따른 폼상태값 검증
-  //에러 셋팅시 submit 차단.
+  //폼 전송 단계에 따른 폼상태값 검증 에러 셋팅시 submit 차단.
   const checkPasswordError = (formData: FieldValues) => {
     const { password, repeat } = formData;
     if (password !== repeat) {
@@ -111,10 +108,7 @@ export default function Join() {
 
     checkPasswordError(formData);
 
-    const confirmOutput = await confirm(formData);
-    if (confirmOutput.ok === true) {
-      router.push('/');
-    }
+    confirm(formData);
   };
 
   //아래 나열된 조건식을 좀 줄여보기.

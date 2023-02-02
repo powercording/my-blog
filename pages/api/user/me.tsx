@@ -1,4 +1,3 @@
-import { withIronSessionApiRoute } from 'iron-session/next';
 import apiHandler from '@libs/server/apiHandler';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
@@ -16,4 +15,6 @@ async function Confirm(req: NextApiRequest, res: NextApiResponse) {
   res.json({ ok: true, profile });
 }
 
-export default sessionHandler(apiHandler('GET', Confirm));
+export default sessionHandler(
+  apiHandler({ method: 'GET', fn: Confirm, isPrivate: true }),
+);
