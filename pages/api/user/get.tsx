@@ -12,6 +12,11 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
+  if (user) {
+    return res.status(200).json({ ok: true });
+  }
+
+  //user will be a null.
   return res.status(200).json(user);
 }
 
