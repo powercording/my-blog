@@ -1,7 +1,8 @@
 import apiHandler from '@libs/server/apiHandler';
+import { sessionHandler } from '@libs/server/sessionHandler';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export async function kakaoToken(req: NextApiRequest, res: NextApiResponse) {
+export async function KakaoToken(req: NextApiRequest, res: NextApiResponse) {
   const url = `https://kauth.kakao.com/oauth/token`;
   const code = req.query.code;
 
@@ -17,7 +18,7 @@ export async function kakaoToken(req: NextApiRequest, res: NextApiResponse) {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: params,
-  }
+  };
 
   const kakaoToken = await fetch(url, fetchOptions).then(res => res.json());
   console.log(kakaoToken);
@@ -25,4 +26,6 @@ export async function kakaoToken(req: NextApiRequest, res: NextApiResponse) {
   res.status(302).redirect('/login');
 }
 
-export default apiHandler('GET', kakaoToken);
+export default sessionHandler(
+  apiHandler({ method: 'GET', fn: KakaoToken, isPrivate: false }),
+);

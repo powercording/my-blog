@@ -3,6 +3,7 @@ import client from '@libs/server/client';
 import apiHandler from '@libs/server/apiHandler';
 import nCloudApiHeader from '@libs/utiles/nCloudApiHeader';
 import smtpTransport from '@libs/utiles/email';
+import { sessionHandler } from '@libs/server/sessionHandler';
 
 const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NEXT_PUBLIC_NCLOUD_SID}/messages`;
 
@@ -81,4 +82,6 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
   return res.status(200).json({ ok: true, ...user, token: { ...token } });
 }
 
-export default apiHandler('POST', Join);
+export default sessionHandler(
+  apiHandler({ method: 'POST', fn: Join, isPrivate: false }),
+);
