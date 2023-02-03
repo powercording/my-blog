@@ -2,9 +2,9 @@ import tw from 'tailwind-styled-components';
 
 const Card = tw.div`
   box-border flex flex-col p-5 gap-5
-  w-80 h-full bg-white border-gray-300 border-2 rounded-xl
+  w-80 top-0 bottom-14 bg-white border-gray-300 border-2 rounded-xl
   hover:cursor-pointer shadow-slate-400 shadow-md
-  absolute items-start flex-shrink-0 left-14
+  absolute items-start flex-shrink-0
 `;
 
 const Img = tw.img`
