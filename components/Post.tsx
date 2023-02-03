@@ -4,7 +4,7 @@ const Card = tw.div`
   box-border flex flex-col p-5 gap-5
   w-80 top-0 bottom-14 bg-white border-gray-300 border-2 rounded-xl
   hover:cursor-pointer shadow-slate-400 shadow-md
-  absolute items-start flex-shrink-0
+  absolute items-start flex-shrink-0 transition-all
 `;
 
 const Img = tw.img`

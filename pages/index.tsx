@@ -1,6 +1,6 @@
 import Post from '@components/Post';
 import useUser from '@libs/client/useUser';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import tw from 'tailwind-styled-components';
 
 const Container = tw.div`
@@ -37,30 +37,63 @@ const test = [
 ];
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState(1);
   const user = useUser();
-  const CONTENT_PER_PAGE = 3;
-  const postSize = test.length - CONTENT_PER_PAGE;
 
   useEffect(() => {
     const posts = document.querySelectorAll('#post');
-    const slideWidth = posts[0].clientWidth;
     const pagenation = document.querySelector('#pagenation');
+    const startingContent = 2;
+    const slideWidth = posts[0].clientWidth;
+    const postSize = test.length - startingContent;
 
     posts.forEach((post, index) => {
       if (index === 0) return;
       post.setAttribute('style', `left:${slideWidth * index - 20 * index}px`);
     });
 
-    for (let page = 1; page <= postSize; page++) {
-      if (page === 1) pagenation!.innerHTML += '<li classList="active">•<li>';
-      else pagenation!.innerHTML += '<li>•<li>';
+    for (let page = 0; page <= postSize; page++) {
+      if (page === 0)
+        pagenation!.innerHTML +=
+          '<li class="text-red-300  transition-all pagenationButton p-1">•<li>';
+      else
+        pagenation!.innerHTML +=
+          '<li class="transition-all pagenationButton p-1 text-gray-500">•<li>';
     }
+
+    const pagenationColorSet = (arr: NodeListOf<Element>) => {
+      arr.forEach(list => {
+        list.classList.remove('text-red-300');
+        list.classList.add('text-gray-500');
+      });
+    };
+
+    const slide = (index: number) => {
+      posts.forEach((post, postIndex) => {
+        const originPosition = slideWidth * postIndex;
+        const postIndent = 20 * postIndex;
+        const postWidth = slideWidth - 20;
+        const moveSize = index * postWidth;
+        post.setAttribute(
+          'style',
+          `left:${originPosition - postIndent - moveSize}px`,
+        );
+      });
+    };
+
+    const pagenationButtons = document.querySelectorAll('.pagenationButton');
+
+    pagenationButtons.forEach((li, index, arr) => {
+      li.addEventListener('click', () => {
+        pagenationColorSet(arr);
+        li.classList.add('text-red-300');
+        slide(index);
+      });
+    });
   }, []);
 
   return (
     <Container>
-      <WelcomeWord>Post</WelcomeWord>
+      <WelcomeWord>Posts</WelcomeWord>
       <CardContainer>
         {test.map(post => (
           <Post key={post.id} sub={post.sub} id={'post'} className={'card'} />
