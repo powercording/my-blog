@@ -4,9 +4,8 @@ import { useEffect } from 'react';
 import tw from 'tailwind-styled-components';
 
 const Container = tw.div`
-  flex-col
-  h-full
-  w-full
+  flex-col p-5
+  h-full w-full
 `;
 const WelcomeWord = tw.h1`
   font-extrabold inline
@@ -14,7 +13,7 @@ const WelcomeWord = tw.h1`
 
 const CardContainer = tw.div`
   overflow-x-hidden relative rounded-xl
-  flex h-full gap-2 w-[50%] 
+  flex h-full gap-2 w-[50%]
 `;
 
 const PageNation = tw.ul`
@@ -47,8 +46,10 @@ export default function Home() {
     const postSize = test.length - startingContent;
 
     posts.forEach((post, index) => {
+      const originPosition = slideWidth * index;
+      const postIndent = 20 * index;
       if (index === 0) return;
-      post.setAttribute('style', `left:${slideWidth * index - 20 * index}px`);
+      post.setAttribute('style', `left:${originPosition - postIndent}px`);
     });
 
     for (let page = 0; page <= postSize; page++) {
@@ -73,6 +74,7 @@ export default function Home() {
         const postIndent = 20 * postIndex;
         const postWidth = slideWidth - 20;
         const moveSize = index * postWidth;
+
         post.setAttribute(
           'style',
           `left:${originPosition - postIndent - moveSize}px`,
