@@ -1,6 +1,6 @@
 import Post from '@components/Post';
 import useUser from '@libs/client/useUser';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import tw from 'tailwind-styled-components';
 
 const Container = tw.div`
@@ -21,6 +21,12 @@ const PageNation = tw.ul`
   flex gap-3 cursor-pointer bottom-0
 `;
 
+const li = (color: string) => {
+  return `<li
+      class="transition-all pagenationButton p-1 text-${color}-300"
+    >▢</li>`;
+};
+
 const test = [
   { sub: '이상돈', id: 1 },
   { sub: '김종찬', id: 2 },
@@ -37,48 +43,64 @@ const test = [
 
 export default function Home() {
   const user = useUser();
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // useEffect(() => {
+  //   const startingPost = 2;
+  //   const pagenaionEnd = test.length - startingPost;
+
+  //   const posts = document.querySelectorAll('#post');
+  //   const pagenation = document.querySelector('pagenation');
+  //   const postWidth = posts[0]?.clientWidth;
+
+  //   posts.forEach((post, index) => {
+  //     const postLocation = postWidth * index;
+  //     const indentPixel = 20 * index;
+  //     const distance = postLocation - indentPixel;
+
+  //     post.classList.add(`left-[${distance}px]`);
+  //   });
+  // }, []);
 
   useEffect(() => {
+    const startingPost = 2;
+    const pagenaionEnd = test.length - startingPost;
+
     const posts = document.querySelectorAll('#post');
     const pagenation = document.querySelector('#pagenation');
-    const startingContent = 2;
-    const slideWidth = posts[0].clientWidth;
-    const postSize = test.length - startingContent;
+    const postWidth = posts[0]?.clientWidth;
 
     posts.forEach((post, index) => {
-      const originPosition = slideWidth * index;
-      const postIndent = 20 * index;
+      const postLocation = postWidth * index;
+      const indentPixel = 20 * index;
+      const distance = postLocation - indentPixel;
       if (index === 0) return;
-      post.setAttribute('style', `left:${originPosition - postIndent}px`);
+      post.setAttribute('style', `left:${distance}px`);
     });
 
-    for (let page = 0; page <= postSize; page++) {
-      if (page === 0)
-        pagenation!.innerHTML +=
-          '<li class="text-red-300  transition-all pagenationButton p-1">•<li>';
-      else
-        pagenation!.innerHTML +=
-          '<li class="transition-all pagenationButton p-1 text-gray-500">•<li>';
+    for (let page = 0; page <= pagenaionEnd; page++) {
+      if (page === 0) {
+        pagenation!.innerHTML += li('red');
+      } else {
+        pagenation!.innerHTML += li('gray');
+      }
     }
 
     const pagenationColorSet = (arr: NodeListOf<Element>) => {
       arr.forEach(list => {
         list.classList.remove('text-red-300');
-        list.classList.add('text-gray-500');
+        list.classList.add('text-gray-300');
       });
     };
 
     const slide = (index: number) => {
       posts.forEach((post, postIndex) => {
-        const originPosition = slideWidth * postIndex;
-        const postIndent = 20 * postIndex;
-        const postWidth = slideWidth - 20;
-        const moveSize = index * postWidth;
-
-        post.setAttribute(
-          'style',
-          `left:${originPosition - postIndent - moveSize}px`,
-        );
+        const indentedWidth = postWidth - 20;
+        const postLocation = postWidth * postIndex;
+        const indentPixel = 20 * postIndex;
+        const distance = postLocation - indentPixel;
+        const moveSize = index * indentedWidth;
+        post.setAttribute('style', `left:${distance - moveSize}px`);
       });
     };
 
@@ -87,6 +109,7 @@ export default function Home() {
     pagenationButtons.forEach((li, index, arr) => {
       li.addEventListener('click', () => {
         pagenationColorSet(arr);
+        li.classList.remove('text-gray-300');
         li.classList.add('text-red-300');
         slide(index);
       });

@@ -16,7 +16,7 @@ const ContentArea = tw.div`
   py-10
   px-8
   w-full
-  
+  gird
 `;
 
 export default function Layout({ children }: LayoutProps) {

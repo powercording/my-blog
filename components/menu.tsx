@@ -22,10 +22,9 @@ const NameTag = tw.p`
 `;
 
 const Category = tw.div`
-border-2
   mx-auto
   mt-5
-  h-[150px]
+  h-[200px]
 `;
 
 const LoginOrJoin = tw(NameTag)`
@@ -54,7 +53,8 @@ const GithubButton = tw(Button)`
   bg-gray-800 text-white
   hover:bg-gray-500
 `;
-
+//TODO: 카카오 로그인과 깃헙 버튼 CSS 수정.
+//TODO: 카카오 로그인 api 구현 세부화와 깃허브 api 로그인 구현
 export default function Menu({ blogName }: BlogName) {
   return (
     <NavContainer>
