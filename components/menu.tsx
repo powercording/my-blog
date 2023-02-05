@@ -3,6 +3,7 @@ import tw from 'tailwind-styled-components';
 
 interface BlogName {
   blogName: string;
+  user: string;
 }
 
 const NavContainer = tw.div`
@@ -55,11 +56,11 @@ const GithubButton = tw(Button)`
 `;
 //TODO: 카카오 로그인과 깃헙 버튼 CSS 수정.
 //TODO: 카카오 로그인 api 구현 세부화와 깃허브 api 로그인 구현
-export default function Menu({ blogName }: BlogName) {
+export default function Menu({ blogName, user }: BlogName) {
   return (
     <NavContainer>
       <Link href="/">{blogName}</Link>
-      <NameTag>name here</NameTag>
+      <NameTag>{user}</NameTag>
       <Category>category here</Category>
       <LoginOrJoin>
         <Link href="login">

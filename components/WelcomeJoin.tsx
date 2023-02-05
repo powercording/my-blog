@@ -34,7 +34,6 @@ export default function WelcomeJoin() {
     typeEffect: '',
   });
   const { typeEffect, welcomeDone } = state;
-
   useEffect(() => {
     const typingEffect = async () => {
       let hello = document.querySelector('#welcome') as HTMLElement | null;

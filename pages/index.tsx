@@ -45,6 +45,8 @@ export default function Home() {
   const user = useUser();
   const [currentPage, setCurrentPage] = useState(0);
 
+  console.log(user);
+
   // useEffect(() => {
   //   const startingPost = 2;
   //   const pagenaionEnd = test.length - startingPost;
