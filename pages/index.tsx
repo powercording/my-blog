@@ -3,17 +3,27 @@ import useUser from '@libs/client/useUser';
 import { useEffect, useState } from 'react';
 import tw from 'tailwind-styled-components';
 
-const Container = tw.div`
-  flex-col p-5
-  h-full w-full
+const MenuContainer = tw.div`
+  py-10 w-screen lg:w-1/3 xl:w-1/4 2xl:w-1/5 
+  text-center bg-white border
+  h-60 lg:h-full
+  
+  text-xl
+  font-sans
 `;
+
+const Container = tw.div`
+  flex flex-col h-full w-full
+  lg:flex-row
+`;
+
 const WelcomeWord = tw.h1`
   font-extrabold inline
 `;
 
 const CardContainer = tw.div`
   overflow-x-hidden relative rounded-xl
-  flex h-full gap-2 w-[50%]
+  flex gap-2 w-[50%]
 `;
 
 const PageNation = tw.ul`
@@ -120,6 +130,7 @@ export default function Home() {
 
   return (
     <Container>
+      <MenuContainer>dd</MenuContainer>
       <WelcomeWord>Posts</WelcomeWord>
       <CardContainer>
         {test.map(post => (
