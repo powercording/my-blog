@@ -9,6 +9,14 @@ const Container = tw.div`
  flex flex-col items-center justify-center
 `;
 
+const Top = tw.div`
+  flex justify-between
+`;
+
+const Button = tw.button`
+
+`;
+
 const PostEditor = dynamic(import('@components/PostEditor'), {
   ssr: false,
 });
@@ -21,7 +29,10 @@ export default function Post() {
 
   return (
     <Container>
-      <Input name="제목" type="text" register={register('subject')} />
+      <Top>
+        <Input name="제목" type="text" register={register('subject')} />
+        <Button>등록하기</Button>
+      </Top>
       <PostEditor value={value} setValue={setValue} />
     </Container>
   );
