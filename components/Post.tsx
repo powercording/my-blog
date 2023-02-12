@@ -5,7 +5,7 @@ const Card = tw.div`
   w-80 top-6 bottom-14 bg-white border-gray-300 border-2 rounded-xl
   hover:cursor-pointer shadow-slate-400 shadow-md
   absolute items-start flex-shrink-0 transition-all 
-  hover:scale-[1.02] hover:z-10
+  hover:scale-[1.02] hover:z-10 
 `;
 
 const Img = tw.img`
