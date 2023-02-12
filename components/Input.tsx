@@ -10,7 +10,7 @@ interface InputProps {
 }
 
 const InputContainer = tw.div`
-  flex flex-col
+  flex flex-col w-3/4 sm:w-1/2 md:w-2/5 lg:w-1/3
   relative
 `;
 
@@ -22,9 +22,9 @@ const CustomLabel = tw.label`
 
 const CustomInput = tw.input`
   text-gray-500
-  border-gray-400 border-b-2 rounded-sm
+  border-gray-400 border-b-2 
   focus:outline-dashed focus:outline-offset-2 focus:outline-2 focus:outline-slate-500
-  pl-3
+  pl-3 w-full
 `;
 
 export default function Input(inputProps: InputProps) {
