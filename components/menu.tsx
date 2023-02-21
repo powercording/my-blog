@@ -4,7 +4,6 @@ import tw from 'tailwind-styled-components';
 interface BlogName {
   blogName: string;
   user: string;
-  menuState: boolean;
   setMenuState: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -21,6 +20,8 @@ const NameTag = tw.div`
 
 const MenuIcon = tw.svg`
 h-8 w-8 mx-2 hover:cursor-pointer hover:text-red-400 text-gray-700
+lg:hidden
+
 `;
 
 const OauthBox = tw.div`
@@ -41,17 +42,13 @@ fill-gray-700
 
 //TODO: 카카오 로그인과 깃헙 버튼 CSS 수정.
 //TODO: 카카오 로그인 api 구현 세부화와 깃허브 api 로그인 구현
-export default function MenuBar({
-  blogName,
-  user,
-  menuState,
-  setMenuState,
-}: BlogName) {
-  const handleMenu = () => {};
+export default function MenuBar({ blogName, user, setMenuState }: BlogName) {
+  const handleMenu = () => {
+    setMenuState(prev => !prev);
+  };
 
   return (
     <>
-      {' '}
       <NavContainer>
         <MenuIcon
           onClick={handleMenu}
@@ -68,7 +65,7 @@ export default function MenuBar({
           />
         </MenuIcon>
         <NameTag>
-          <Link href="/" onClick={handleMenu}>
+          <Link href="/">
             <span>{blogName}</span>
           </Link>
           <span>{user}</span>
