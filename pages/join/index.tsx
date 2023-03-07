@@ -38,7 +38,7 @@ text-xs text-slate-500 mt-1 ml-2
 export default function Join() {
   const [emailOk, setEmailOk] = useState(false);
   const [refuse, setRefuse] = useState<string | null>(null);
-  const [emailDebounce, debounceLoading, timer] = useDebounce(600);
+  const [debounceLoading, setDebounceLoading] = useState(false);
   const [Greeting, animationEnd] = WelcomeJoin();
   const [userJoin, { data, loading }, joinDataReset] = useMutate('api/join');
   const [confirm, { data: confirmResult, loading: confirmLoading }] =
@@ -81,7 +81,7 @@ export default function Join() {
 
     checkPasswordError(formData);
     await userJoin(formData);
-    
+
     setTimeout(() => {
       setFocus('payload');
     }, 0);
@@ -116,15 +116,17 @@ export default function Join() {
     const regPass = CONST.EMAIL_REG.test(userEmail);
 
     resetState();
+    setDebounceLoading(() => true);
 
     regPass
       ? await fetch(`api/user/get?email=${userEmail}`)
           .then(response => response.json().catch(e => console.log(e)))
           .then(user => {
+            setDebounceLoading(() => false);
             setFeedback(user);
           })
           .catch(e => console.log(e))
-      : (clearTimeout(timer), setRefuse(null));
+      : setRefuse(null);
   };
 
   const toggleDisabled = (e: any) => {
@@ -145,7 +147,7 @@ export default function Join() {
             required: true,
             pattern: CONST.EMAIL_REG,
             onChange(event) {
-              emailDebounce(() => userApiDebounce(event));
+              useDebounce(userApiDebounce, 600);
             },
             onBlur(event) {
               event.target.setAttribute('disabled', true);
