@@ -112,6 +112,7 @@ export default function Join() {
   };
 
   const userApiDebounce = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e)
     const userEmail = e.target.value;
     const regPass = CONST.EMAIL_REG.test(userEmail);
 
