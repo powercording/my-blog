@@ -17,18 +17,23 @@ const ContentArea = tw.div`
 `;
 
 const MenuList = tw.p`
+<<<<<<< HEAD
   cursor-pointe
 `
+=======
+  cursor-pointer
+`;
+>>>>>>> 7bd86501c7af9c691348f1307bc923497f30ed03
 
 export default function Layout({ children }: LayoutProps) {
   const [open, setOpen] = useState(true);
-  const { name } = useUser();
+  const user = useUser();
 
   return (
     <Container>
       <MenuBar
         blogName="My-blog"
-        user={name}
+        user={user?.name}
         menuState={open}
         setMenuState={setOpen}
       >

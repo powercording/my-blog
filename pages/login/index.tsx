@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import tw from 'tailwind-styled-components';
 import Form from './Joinform';
 
@@ -33,8 +33,6 @@ z-20 mt-auto h-16 border text-white rounded-md
 font-mono
 `;
 export default function Login() {
-  const loginButtonRef = useRef<HTMLDivElement>(null);
-  const joinButtonRef = useRef<HTMLDivElement>(null);
   const [loginClick, setLoginClick] = useState<boolean | null>(null);
   const [joinClick, setJoinClick] = useState<boolean | null>(null);
 
@@ -55,18 +53,10 @@ export default function Login() {
 
   return (
     <LoginContainer>
-      <LoginBox
-        loginClick={loginClick}
-        ref={loginButtonRef}
-        onClick={handleLoginClick}
-      >
+      <LoginBox loginClick={loginClick} onClick={handleLoginClick}>
         <Font loginClick={loginClick}>LOGIN</Font>
       </LoginBox>
-      <JoinBox
-        loginClick={joinClick}
-        ref={joinButtonRef}
-        onClick={handleJoinClick}
-      >
+      <JoinBox loginClick={joinClick} onClick={handleJoinClick}>
         <Font loginClick={joinClick}>JOIN</Font>
         {joinClick && <Form></Form>}
       </JoinBox>

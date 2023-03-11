@@ -80,20 +80,8 @@ export default function Row() {
     joinDataReset();
   };
 
-  //폼 전송 단계에 따른 폼상태값 검증 에러 셋팅시 submit 차단
-  const checkPasswordError = (formData: FieldValues) => {
-    const { password, repeat } = formData;
-    if (password !== repeat) {
-      return setError('password', {
-        message: '비밀번호가 일치해야 합니다.',
-      });
-    }
-  };
-
   const handleJoin = async (formData: FieldValues) => {
     if (loading) return;
-
-    checkPasswordError(formData);
 
     await userJoin(formData);
     setTimeout(() => {
@@ -102,18 +90,14 @@ export default function Row() {
   };
 
   const onSubmit = async (formData: FieldValues) => {
-    if (confirmLoading) {
-      return;
-    }
-
-    checkPasswordError(formData);
-
+    if (confirmLoading) return;
     confirm(formData);
   };
 
   //아래 나열된 조건식을 좀 줄여보기.
   const setFeedback = (user: Object | null) => {
     if (user) {
+      console.log(user);
       setRefuse(CONST.EMAIL_EXIST);
       resetState();
     }
@@ -139,8 +123,7 @@ export default function Row() {
             setFeedback(user);
           })
           .catch(e => console.log(e))
-      : setRefuse(null),
-      clearTimeout(timer);
+      : (setRefuse(null), clearTimeout(timer));
   };
 
   const toggleDisabled = (e: any) => {
@@ -178,30 +161,6 @@ export default function Row() {
           </InfoMessage>
         </InputContainer>
         <InputContainer $show={emailOk}>
-          <Input
-            className="mb-3"
-            id="password"
-            name="password"
-            type="password"
-            register={register('password', {
-              required: true,
-              pattern: {
-                value: CONST.PASSWORD_REG,
-                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
-              },
-            })}
-          />
-          <Input
-            name="password 확인"
-            type="password"
-            register={register('repeat', {
-              required: true,
-              pattern: {
-                value: CONST.PASSWORD_REG,
-                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
-              },
-            })}
-          />
           <InfoMessage>
             {errors?.password?.message
               ? `${errors.password.message}`
