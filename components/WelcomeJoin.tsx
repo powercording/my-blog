@@ -23,7 +23,6 @@ const WelcomeAnimation = styled.div<{
 
 const WelcomeMessage = tw(WelcomeAnimation)`
   text-slate-500
-  w-3/4 sm:w-1/2 md:w-2/5 lg:w-1/3
 `;
 const delay = (ms: number) => {
   return new Promise(res => setTimeout(res, ms));

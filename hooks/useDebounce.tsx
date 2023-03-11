@@ -1,8 +1,22 @@
-export default function deBounce(fn: any, delay: number = 500) {
-  let timer: ReturnType<typeof setTimeout>;
+import { useState } from 'react';
 
-  return (...args: any) => {
-    clearTimeout(timer);
-    timer = setTimeout(fn.bind(null, ...args), delay);
+let timer: any;
+
+export default function  deBounce(ms: number = 500) {
+  const [loading, setLoading] = useState(false);
+
+  const useDebounce = async (fn: () => void) => {
+    if (timer) {
+      setLoading(() => false);
+      clearTimeout(timer);
+    }
+
+    timer = setTimeout(async () => {
+      setLoading(() => true);
+      await fn();
+      setLoading(() => false);
+    }, ms);
   };
+
+  return [useDebounce, loading, timer] as const;
 }

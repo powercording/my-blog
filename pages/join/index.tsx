@@ -9,20 +9,34 @@ import useMutate from '@libs/client/useMutate';
 import { CONST } from '@libs/constant/CONST';
 import { useRouter } from 'next/router';
 
+const JoinFormContainer = tw.div`
+  w-auto px-4 py-4
+  space-y-3 overflow-hidden
+  h-auto
+  mx-auto
+`;
+
+const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
+  sm:w-3/4  
+  md:w-1/2
+  lg:w-2/5
+  xl:w-1/3
+`;
+
 const JoinForm = tw.form`
-  w-full py-2 my-3
-  flex flex-col   items-center
+  flex
+  flex-col
   gap-3
 `;
 
 const InputContainer = tw.div<{ $show: boolean | string }>`
-  relative w-full flex flex-col items-center
+  relative
   ${props => (props.$show ? '' : 'hidden')}
 `;
 
 const Button = tw.button<{ $show: boolean | string }>`
   ${props => (props.$show ? '' : 'hidden')}
-  w-3/4 sm:w-1/2 md:w-2/5 lg:w-1/3 h-8 
+  w-full h-8
   bg-gray-300
   rounded-md
   hover:bg-gray-400
@@ -37,8 +51,8 @@ text-xs text-slate-500 mt-1 ml-2
 
 export default function Join() {
   const [emailOk, setEmailOk] = useState(false);
-  const [refuse, setRefuse] = useState<string | null>(null);
-  const [debounceLoading, setDebounceLoading] = useState(false);
+  const [refuse, setRefuse] = useState<string | null>(null);  
+  const [emailDebounce, debounceLoading, timer] = useDebounce(600)
   const [Greeting, animationEnd] = WelcomeJoin();
   const [userJoin, { data, loading }, joinDataReset] = useMutate('api/join');
   const [confirm, { data: confirmResult, loading: confirmLoading }] =
@@ -80,8 +94,8 @@ export default function Join() {
     if (loading) return;
 
     checkPasswordError(formData);
-    await userJoin(formData);
 
+    await userJoin(formData);
     setTimeout(() => {
       setFocus('payload');
     }, 0);
@@ -93,6 +107,7 @@ export default function Join() {
     }
 
     checkPasswordError(formData);
+
     confirm(formData);
   };
 
@@ -116,17 +131,15 @@ export default function Join() {
     const regPass = CONST.EMAIL_REG.test(userEmail);
 
     resetState();
-    setDebounceLoading(() => true);
 
     regPass
       ? await fetch(`api/user/get?email=${userEmail}`)
           .then(response => response.json().catch(e => console.log(e)))
           .then(user => {
-            setDebounceLoading(() => false);
             setFeedback(user);
           })
           .catch(e => console.log(e))
-      : setRefuse(null);
+      : setRefuse(null), clearTimeout(timer)
   };
 
   const toggleDisabled = (e: any) => {
@@ -134,84 +147,86 @@ export default function Join() {
   };
 
   return (
-    <JoinForm
-      onSubmit={data?.ok ? handleSubmit(onSubmit) : handleSubmit(handleJoin)}
-    >
+    <JoinFormContainerLargeScreen>
       <Greeting></Greeting>
-      <InputContainer $show={animationEnd}>
-        <Input
-          onClick={toggleDisabled}
-          name="email"
-          type="text"
-          register={register('email', {
-            required: true,
-            pattern: CONST.EMAIL_REG,
-            onChange(event) {
-              useDebounce(userApiDebounce, 600);
-            },
-            onBlur(event) {
-              event.target.setAttribute('disabled', true);
-            },
-          })}
-        />
-        <InfoMessage>
-          {debounceLoading
-            ? 'checking..'
-            : emailOk
-            ? '☑️'
-            : refuse ?? CONST.ENTER_EMAIL}
-        </InfoMessage>
-      </InputContainer>
-      <InputContainer $show={emailOk}>
-        <Input
-          className="mb-3"
-          id="password"
-          name="password"
-          type="password"
-          register={register('password', {
-            required: true,
-            pattern: {
-              value: CONST.PASSWORD_REG,
-              message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
-            },
-          })}
-        />
-        <Input
-          name="password 확인"
-          type="password"
-          register={register('repeat', {
-            required: true,
-            pattern: {
-              value: CONST.PASSWORD_REG,
-              message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
-            },
-          })}
-        />
-        <InfoMessage>
-          {errors?.password?.message
-            ? `${errors.password.message}`
+      <JoinForm
+        onSubmit={data?.ok ? handleSubmit(onSubmit) : handleSubmit(handleJoin)}
+      >
+        <InputContainer $show={animationEnd}>
+          <Input
+            onClick={toggleDisabled}
+            name="email"
+            type="text"
+            register={register('email', {
+              required: true,
+              pattern: CONST.EMAIL_REG,
+              onChange(event) {
+                emailDebounce(() => userApiDebounce(event));
+              },
+              onBlur(event) {
+                event.target.setAttribute('disabled', true);
+              },
+            })}
+          />
+          <InfoMessage>
+            {debounceLoading
+              ? 'checking..'
+              : emailOk
+              ? '☑️'
+              : refuse ?? CONST.ENTER_EMAIL}
+          </InfoMessage>
+        </InputContainer>
+        <InputContainer $show={emailOk}>
+          <Input
+            className="mb-3"
+            id="password"
+            name="password"
+            type="password"
+            register={register('password', {
+              required: true,
+              pattern: {
+                value: CONST.PASSWORD_REG,
+                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
+              },
+            })}
+          />
+          <Input
+            name="password 확인"
+            type="password"
+            register={register('repeat', {
+              required: true,
+              pattern: {
+                value: CONST.PASSWORD_REG,
+                message: '숫자 문자 및 특수문자를 각 한개이상 포함해야 합니다.',
+              },
+            })}
+          />
+          <InfoMessage>
+            {errors?.password?.message
+              ? `${errors.password.message}`
+              : data?.ok
+              ? '인증번호를 발송했습니다'
+              : loading
+              ? 'loading...'
+              : null}
+          </InfoMessage>
+        </InputContainer>
+        <InputContainer $show={data?.ok}>
+          <Input
+            id="confirm"
+            name="Confirm number"
+            type="stirng"
+            register={register('payload')}
+          ></Input>
+        </InputContainer>
+        <Button className="w-full" $show={emailOk}>
+          {loading
+            ? 'loading....'
             : data?.ok
-            ? '인증번호를 발송했습니다'
-            : loading
-            ? 'loading...'
-            : null}
-        </InfoMessage>
-      </InputContainer>
-      <InputContainer $show={data?.ok}>
-        <Input
-          id="confirm"
-          name="Confirm number"
-          type="stirng"
-          register={register('payload')}
-        ></Input>
-      </InputContainer>
-      <Button $show={emailOk}>
-        {loading
-          ? 'loading....'
-          : data?.ok
-          ? '인증하기 (가입완료)'
-          : '회원가입'}
-      </Button>
-    </JoinForm>
+            ? '인증하기 (가입완료)'
+            : '회원가입'}
+        </Button>
+      </JoinForm>
+    </JoinFormContainerLargeScreen>
   );
 }
