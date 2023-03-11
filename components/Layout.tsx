@@ -22,13 +22,13 @@ const MenuList = tw.p`
 
 export default function Layout({ children }: LayoutProps) {
   const [open, setOpen] = useState(true);
-  const { name } = useUser();
+  const user = useUser();
 
   return (
     <Container>
       <MenuBar
         blogName="My-blog"
-        user={name}
+        user={user?.name}
         menuState={open}
         setMenuState={setOpen}
       >

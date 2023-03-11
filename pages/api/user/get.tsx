@@ -13,7 +13,9 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
   });
 
   if (user) {
-    return res.status(200).json({ ok: true });
+    return res
+      .status(200)
+      .json({ ok: true, warn: '존재하는 이메일 입니다.' });
   }
 
   //user will be a null.
