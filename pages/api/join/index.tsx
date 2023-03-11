@@ -8,7 +8,7 @@ import { sessionHandler } from '@libs/server/sessionHandler';
 const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NEXT_PUBLIC_NCLOUD_SID}/messages`;
 
 async function Join(req: NextApiRequest, res: NextApiResponse) {
-  const { email, password } = req.body;
+  const { email } = req.body;
   let user;
 
   user = await client.user.findUnique({
@@ -19,8 +19,8 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
 
   if (user) {
     return res
-      .status(200)
-      .json({ ok: false, warn: '이미 존재하는 아이디 입니다.' });
+      .status(409)
+      .json({ ok: false, warn: '이미 존재하는 아이디 입니다.d' });
   }
 
   if (!user) {
@@ -29,7 +29,6 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
       data: {
         email,
         name: email,
-        password,
       },
     });
     console.log('userResult :', user);
@@ -48,27 +47,6 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
     },
   });
   console.log('token', token);
-
-  // const messageBody = {
-  //   type: 'SMS',
-  //   from: '핸드폰번호',
-  //   content: '호잇',
-  //   messages: [
-  //     {
-  //       to: '핸드폰번호',
-  //       content: `인증 번호는 ${payLoad} 입니다.`,
-  //     },
-  //   ],
-  // };
-
-  // await fetch(url, {
-  //   method: 'POST',
-  //   headers: nCloudApiHeader(),
-  //   body: JSON.stringify(messageBody),
-  // })
-  //   .then(res => res.json().catch(e => console.log(e)))
-  //   .then(json => console.log(json))
-  //   .catch(e => console.log(e));
 
   const mailOptions = {
     from: process.env.NEXT_PUBLICK_EMAIL_ID,
