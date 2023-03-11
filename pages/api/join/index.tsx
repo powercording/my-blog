@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import apiHandler from '@libs/server/apiHandler';
-import nCloudApiHeader from '@libs/utiles/nCloudApiHeader';
 import smtpTransport from '@libs/utiles/email';
 import { sessionHandler } from '@libs/server/sessionHandler';
 
@@ -47,6 +46,7 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
       },
     },
   });
+  
   console.log('token', token);
 
   const mailOptions = {
