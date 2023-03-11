@@ -66,7 +66,7 @@ export default function Join() {
     joinDataReset();
   };
 
-  //폼 전송 단계에 따른 폼상태값 검증 에러 셋팅시 submit 차단.
+  //폼 전송 단계에 따른 폼상태값 검증 에러 셋팅시 submit 차단
   const checkPasswordError = (formData: FieldValues) => {
     const { password, repeat } = formData;
     if (password !== repeat) {
