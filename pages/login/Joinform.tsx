@@ -10,7 +10,7 @@ import { CONST } from '@libs/constant/CONST';
 import { useRouter } from 'next/router';
 
 const JoinFormContainer = tw.div`
-  w-auto px-4 py-4
+  w-auto px-4
   space-y-3 overflow-hidden
   h-auto
   mx-auto
@@ -23,7 +23,7 @@ const JoinFormContainerLargeScreen = tw(JoinFormContainer)`
   xl:w-1/3
 `;
 
-const JoinForm = tw.form`
+const JoinFormRow = tw.form`
   flex
   flex-col
   gap-3
@@ -42,17 +42,17 @@ const Button = tw.button<{ $show: boolean | string }>`
   hover:bg-gray-400
   mt-3
   font-bold
-  text-gray-700
+  text-white
 `;
 
 const InfoMessage = tw.p`
-text-xs text-slate-500 mt-1 ml-2
+text-xs text-white mt-1 ml-2
 `;
 
-export default function Join() {
+export default function Row() {
   const [emailOk, setEmailOk] = useState(false);
-  const [refuse, setRefuse] = useState<string | null>(null);  
-  const [emailDebounce, debounceLoading, timer] = useDebounce(600)
+  const [refuse, setRefuse] = useState<string | null>(null);
+  const [emailDebounce, debounceLoading, timer] = useDebounce(600);
   const [Greeting, animationEnd] = WelcomeJoin();
   const [userJoin, { data, loading }, joinDataReset] = useMutate('api/join');
   const [confirm, { data: confirmResult, loading: confirmLoading }] =
@@ -139,7 +139,8 @@ export default function Join() {
             setFeedback(user);
           })
           .catch(e => console.log(e))
-      : setRefuse(null), clearTimeout(timer)
+      : setRefuse(null),
+      clearTimeout(timer);
   };
 
   const toggleDisabled = (e: any) => {
@@ -149,7 +150,7 @@ export default function Join() {
   return (
     <JoinFormContainerLargeScreen>
       <Greeting></Greeting>
-      <JoinForm
+      <JoinFormRow
         onSubmit={data?.ok ? handleSubmit(onSubmit) : handleSubmit(handleJoin)}
       >
         <InputContainer $show={animationEnd}>
@@ -226,7 +227,7 @@ export default function Join() {
             ? '인증하기 (가입완료)'
             : '회원가입'}
         </Button>
-      </JoinForm>
+      </JoinFormRow>
     </JoinFormContainerLargeScreen>
   );
 }

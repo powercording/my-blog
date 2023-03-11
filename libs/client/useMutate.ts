@@ -6,18 +6,7 @@ interface MutationState<T> {
   data?: T;
 }
 
-type LoginReturn = {
-  ok: boolean;
-  data?: any;
-  message?: string;
-  [key: string]: any;
-};
-
-type MutationReturn<T> = [
-  (data: any) => Promise<LoginReturn>,
-  MutationState<T>,
-  () => void,
-];
+type MutationReturn<T> = [(data: any) => void, MutationState<T>, () => void];
 
 export default function useMutate<T = any>(url: string): MutationReturn<T> {
   //return state object
@@ -44,17 +33,18 @@ export default function useMutate<T = any>(url: string): MutationReturn<T> {
   };
 
   //return mutating function
-  const mutationFunction = async (data: any): Promise<LoginReturn> => {
+  const mutationFunction = (data: any) => {
     setState(prev => ({ ...prev, loading: true }));
 
-    const mutate = await fetch(url, fetchOptions(data));
-    const json = await mutate.json().catch(e => {
-      console.log(e);
-      setState(prev => ({ ...prev, error: e, loading: false }));
-    });
-    setState(prev => ({ ...prev, data: json, loading: false }));
+    const mutate = fetch(url, fetchOptions(data))
+      .then(res => res.json().catch(() => {}))
+      .then(json => {
+        setState(prev => ({ ...prev, data: json, loading: false }));
+        return json;
+      })
+      .catch(error => setState(prev => ({ ...prev, error, loading: false })));
 
-    return json;
+    return mutate;
   };
 
   return [mutationFunction, { ...state }, reset];

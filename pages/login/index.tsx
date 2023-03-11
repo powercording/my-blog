@@ -1,84 +1,80 @@
-import Input from '@components/Input';
-import useMutate from '@libs/client/useMutate';
-import useUser from '@libs/client/useUser';
-import { CONST } from '@libs/constant/CONST';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { FieldValues, useForm } from 'react-hook-form';
+import { useRef, useState } from 'react';
 import tw from 'tailwind-styled-components';
+import Form from './Joinform';
 
-const JoinForm = tw.form`
-  flex items-center justify-center
-  flex-col my-10 py-2
-  gap-3 
+const LoginContainer = tw.div`
+  flex flex-col h-screen relative 
+  `;
+const LoginLayOut = tw.div<{ loginClick: boolean | null }>`
+absolute 
+flex flex-col justify-center items-center
+cursor-pointer transition-all
+w-full
+h-[50%]
+${props =>
+  props.loginClick === true ? 'h-full z-10 justify-start-start' : 'group'}
+${props => (props.loginClick === false ? 'invisible' : '')}
 `;
-
-const Button = tw.button<{ $show: boolean | string }>`
-  w-3/4 sm:w-1/2 md:w-2/5 lg:w-1/3 h-8 font-bold
-  bg-gray-300 rounded-md text-gray-700
-  hover:bg-gray-400  mt-3
+const LoginBox = tw(LoginLayOut)`
+bg-slate-400
+  top-0
 `;
-
-type LoginReturn = {
-  ok: boolean;
-  data?: any;
-  message?: string;
-};
-
+const JoinBox = tw(LoginLayOut)`
+bottom-0
+  bg-slate-500
+`;
+const Font = tw.p<{ loginClick: boolean | null }>`
+  text-white font-extrabold font-mono text-6xl
+ group-hover:drop-shadow-md group-hover:text-7xl transition-all
+ ${props => (props.loginClick ? 'absolute opacity-10' : '')}
+`;
+const ResetButton = tw.button`
+z-20 mt-auto h-16 border text-white rounded-md
+font-mono
+`;
 export default function Login() {
-  const { name } = useUser();
-  const { register, handleSubmit } = useForm();
-  const [mutate, { loading, data }] = useMutate('api/login');
-  const router = useRouter();
+  const loginButtonRef = useRef<HTMLDivElement>(null);
+  const joinButtonRef = useRef<HTMLDivElement>(null);
+  const [loginClick, setLoginClick] = useState<boolean | null>(null);
+  const [joinClick, setJoinClick] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    if (name) {
-      router.replace('/');
-    }
-    if (data?.ok) {
-      router.replace('/');
-    }
-  }, [router, name, data]);
-
-  const handleLogin = async (formData: FieldValues) => {
-    if (loading) return;
-    const result = await mutate(formData);
-
-    if (result?.ok === false) {
-      alert(result?.message);
-    }
+  const handleLoginClick = () => {
+    setLoginClick(() => true);
+    setJoinClick(() => false);
   };
 
-  const handleJoin = () => {
-    router.push('join');
+  const handleJoinClick = () => {
+    setLoginClick(() => false);
+    setJoinClick(() => true);
+  };
+
+  const handleReset = () => {
+    setLoginClick(null);
+    setJoinClick(null);
   };
 
   return (
-    <>
-      <JoinForm onSubmit={handleSubmit(handleLogin)}>
-        <Input
-          name="이메일"
-          type="text"
-          register={register('email', {
-            required: true,
-            pattern: CONST.EMAIL_REG,
-          })}
-        />
-        <Input
-          name="비밀번호"
-          type="password"
-          register={register('password', {
-            required: true,
-            pattern: CONST.PASSWORD_REG,
-          })}
-        />
-        <Button type="submit" $show={loading}>
-          {loading ? 'loading....' : '로그인'}
-        </Button>
-        <Button type="button" $show={loading} onClick={handleJoin}>
-          가입하기
-        </Button>
-      </JoinForm>
-    </>
+    <LoginContainer>
+      <LoginBox
+        loginClick={loginClick}
+        ref={loginButtonRef}
+        onClick={handleLoginClick}
+      >
+        <Font loginClick={loginClick}>LOGIN</Font>
+      </LoginBox>
+      <JoinBox
+        loginClick={joinClick}
+        ref={joinButtonRef}
+        onClick={handleJoinClick}
+      >
+        <Font loginClick={joinClick}>JOIN</Font>
+        {joinClick && <Form></Form>}
+      </JoinBox>
+      {(loginClick || joinClick) && (
+        <ResetButton type="button" onClick={handleReset}>
+          돌아가기
+        </ResetButton>
+      )}
+    </LoginContainer>
   );
 }
