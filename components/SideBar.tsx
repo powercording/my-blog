@@ -6,52 +6,59 @@ interface BlogName {
   user: string;
   menuState: boolean;
   setMenuState: React.Dispatch<React.SetStateAction<boolean>>;
+  children: React.ReactNode
 }
 
 const NavContainer = tw.div`
-  w-screen flex flex-row items-center
-  bg-white border-b-2
+  h-screen flex flex-col items-start justify-start py-4
+  bg-zinc-400 border-b-2 text-white
 `;
 
 const NameTag = tw.div`
-  flex flex-col px-3 
+  flex flex-col px-4 
   items-center justify-center h-14
-  mr-auto
+  mr-auto font-bold
 `;
 
 const MenuIcon = tw.svg`
-h-8 w-8 mx-2 hover:cursor-pointer hover:text-red-400 text-gray-700
+h-8 w-8 mx-2 hover:cursor-pointer hover:text-red-400 text-white
 `;
 
 const OauthBox = tw.div`
-flex gap-1 py-3 items-center px-3
+mt-auto
+flex gap-1 items-center px-3
 `;
 const LoginOrJoin = tw(OauthBox)`
 
 `;
 const GithubIcon = tw(MenuIcon)`
-  fill-gray-600
+  fill-white
   hover:fill-black
   mx-1
 `;
 const KakaoIcon = tw(MenuIcon)`
-fill-gray-700
+fill-white
   hover:fill-amber-200
 `;
+const Menu = tw.div`
+  space-y-2
+  px-2
+`
+
 
 //TODO: 카카오 로그인과 깃헙 버튼 CSS 수정.
 //TODO: 카카오 로그인 api 구현 세부화와 깃허브 api 로그인 구현
-export default function MenuBar({
+export default function SideBar({
   blogName,
   user,
   menuState,
   setMenuState,
+  children
 }: BlogName) {
   const handleMenu = () => {};
 
   return (
     <>
-      {' '}
       <NavContainer>
         <MenuIcon
           onClick={handleMenu}
@@ -73,7 +80,7 @@ export default function MenuBar({
           </Link>
           <span>{user}</span>
         </NameTag>
-        <LoginOrJoin></LoginOrJoin>
+        <Menu>{children}</Menu>
         <OauthBox>
           <Link href="login" onClick={handleMenu}>
             {/* <svg
@@ -90,7 +97,7 @@ export default function MenuBar({
               width="24"
               height="24"
               viewBox="0 0 24 24"
-              className="fill-gray-600 hover:fill-gray-400 mx-2"
+              className="fill-white hover:fill-rose-300 mx-2"
             >
               <path d="M14 12h-4v-12h4v12zm4.213-10.246l-1.213 1.599c2.984 1.732 5 4.955 5 8.647 0 5.514-4.486 10-10 10s-10-4.486-10-10c0-3.692 2.016-6.915 5-8.647l-1.213-1.599c-3.465 2.103-5.787 5.897-5.787 10.246 0 6.627 5.373 12 12 12s12-5.373 12-12c0-4.349-2.322-8.143-5.787-10.246z" />
             </svg>
