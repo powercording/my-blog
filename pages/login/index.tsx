@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import tw from 'tailwind-styled-components';
-import Form from './Joinform';
+import JoinForm from './Joinform';
+import LoginForm from './LoginForm';
 
 const LoginContainer = tw.div`
   flex flex-col h-screen relative 
@@ -8,11 +9,11 @@ const LoginContainer = tw.div`
 const LoginLayOut = tw.div<{ loginClick: boolean | null }>`
 absolute 
 flex flex-col justify-center items-center
-cursor-pointer transition-all
+ transition-all
 w-full
 h-[50%]
 ${props =>
-  props.loginClick === true ? 'h-full z-10 justify-start-start' : 'group'}
+  props.loginClick === true ? 'h-full z-10 justify-start-start' : 'group cursor-pointer'}
 ${props => (props.loginClick === false ? 'invisible' : '')}
 `;
 const LoginBox = tw(LoginLayOut)`
@@ -55,10 +56,11 @@ export default function Login() {
     <LoginContainer>
       <LoginBox loginClick={loginClick} onClick={handleLoginClick}>
         <Font loginClick={loginClick}>LOGIN</Font>
+        {loginClick && <LoginForm></LoginForm>}
       </LoginBox>
       <JoinBox loginClick={joinClick} onClick={handleJoinClick}>
         <Font loginClick={joinClick}>JOIN</Font>
-        {joinClick && <Form></Form>}
+        {joinClick && <JoinForm></JoinForm>}
       </JoinBox>
       {(loginClick || joinClick) && (
         <ResetButton type="button" onClick={handleReset}>

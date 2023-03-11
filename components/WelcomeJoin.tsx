@@ -12,12 +12,12 @@ const WelcomeAnimation = styled.div<{
   welcomeDone: boolean;
 }>`
   transition: height 1s;
-  &: after {
+
+  &::after  {
     content: '';
-    border-right: 2px solid black;
+    border-right: 2px solid white;
     opacity: 0;
-    animation: ${props => (props.welcomeDone ? '' : typeEffect)} 0.4s step-end
-      infinite;
+    animation: ${props => props.welcomeDone ? '' : typeEffect} 0.4s step-end infinite;
   }
 `;
 

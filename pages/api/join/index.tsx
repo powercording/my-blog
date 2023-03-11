@@ -8,7 +8,8 @@ import { sessionHandler } from '@libs/server/sessionHandler';
 const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NEXT_PUBLIC_NCLOUD_SID}/messages`;
 
 async function Join(req: NextApiRequest, res: NextApiResponse) {
-  const { email } = req.body;
+  const { email, type } = req.body;
+  const isLogin = (type === "login")
   let user;
 
   user = await client.user.findUnique({
@@ -17,10 +18,10 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  if (user) {
+  if (user && !isLogin) {
     return res
       .status(409)
-      .json({ ok: false, warn: '이미 존재하는 아이디 입니다.d' });
+      .json({ ok: false, warn: '이미 존재하는 아이디 입니다.' });
   }
 
   if (!user) {
@@ -51,7 +52,7 @@ async function Join(req: NextApiRequest, res: NextApiResponse) {
   const mailOptions = {
     from: process.env.NEXT_PUBLICK_EMAIL_ID,
     to: user.email,
-    subject: '마이블로그 가입 인증 이메일 입니다.',
+    subject: isLogin ? "마이블로그 로그인 인증번호 입니다." : '마이블로그 가입 인증 이메일 입니다.',
     text: `마이블로그 인증 번호는 ${payLoad} 입니다.`,
   };
 
