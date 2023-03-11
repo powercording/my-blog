@@ -21,7 +21,7 @@ export async function KakaoToken(req: NextApiRequest, res: NextApiResponse) {
   };
 
   const kakaoToken = await fetch(url, fetchOptions).then(res => res.json());
-  console.log(kakaoToken);
+  console.log(await kakaoToken);
 
   res.status(302).redirect('/login');
 }

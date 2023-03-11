@@ -181,8 +181,8 @@ export default function LoginForm() {
           {loading
             ? 'loading....'
             : data?.ok
-            ? '인증하기 (가입완료)'
-            : '회원가입'}
+            ? '로그인'
+            : '일회용 비밀번호 받기'}
         </Button>
       </JoinFormRow>
     </JoinFormContainerLargeScreen>
