@@ -22,7 +22,7 @@ const WelcomeAnimation = styled.div<{
 `;
 
 const WelcomeMessage = tw(WelcomeAnimation)`
-  text-slate-500
+  text-white
 `;
 const delay = (ms: number) => {
   return new Promise(res => setTimeout(res, ms));
