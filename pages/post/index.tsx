@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import tw from 'tailwind-styled-components';
 
 const Container = tw.div`
-h-[calc(100%-56px)] px-3 
- flex flex-col items-center 
+ h-screen px-3 
+ flex flex-col items-center justify-center
 `;
 
 const Top = tw.div`
