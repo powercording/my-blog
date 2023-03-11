@@ -17,7 +17,7 @@ const ContentArea = tw.div`
 `;
 
 const MenuList = tw.p`
-  cursor-pointer
+  cursor-pointe
 `
 
 export default function Layout({ children }: LayoutProps) {
