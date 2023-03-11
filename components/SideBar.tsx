@@ -11,7 +11,7 @@ interface BlogName {
 
 const NavContainer = tw.div`
   h-screen flex flex-col items-start justify-start py-4
-  bg-zinc-400 border-b-2 text-white
+  bg-zinc-400 text-white
 `;
 
 const NameTag = tw.div`
