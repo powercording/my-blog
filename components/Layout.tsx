@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react';
 import MenuBar from './SideBar';
 import tw from 'tailwind-styled-components';
 import useUser from '@libs/client/useUser';
+import Link from 'next/link';
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,13 +18,8 @@ const ContentArea = tw.div`
 `;
 
 const MenuList = tw.p`
-<<<<<<< HEAD
-  cursor-pointe
-`
-=======
   cursor-pointer
 `;
->>>>>>> 7bd86501c7af9c691348f1307bc923497f30ed03
 
 export default function Layout({ children }: LayoutProps) {
   const [open, setOpen] = useState(true);
@@ -39,7 +35,9 @@ export default function Layout({ children }: LayoutProps) {
       >
         <MenuList>about me</MenuList>
         <MenuList>blabla</MenuList>
-        <MenuList>css</MenuList>
+        <Link href="webcss">
+          <MenuList>css</MenuList>
+        </Link>
         <MenuList>animation</MenuList>
         <MenuList>code</MenuList>
       </MenuBar>
