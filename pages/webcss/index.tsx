@@ -1,41 +1,59 @@
 import styled from 'styled-components';
 import tw from 'tailwind-styled-components';
 
-const PageContainer = tw.div`
-    flex justify-center
+const PageContainer = styled.div` 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    :hover div:nth-child(1){
+    color:red;
+    border-bottom: .5px solid black;
+    transform: skew(25deg);
+    }
+    :hover div:nth-child(2){
+    color:red;
+    border-top: 0.5px solid black;
+    transform: skew(25deg) translateY(-4%)
+    }
+   
 `;
 
-const HOME = styled.span`
+const Div = styled.div`
+  overflow: hidden;
   position: relative;
+  height: 12px;
+  width: 50px;
+  transition: .2s;
+`;
 
-  ::after,
-  ::before {
-    /* position: absolute; */
-    color: red;
-    overflow: hidden;
-  }
-  ::before {
-    cursor: pointer;
-  }
+const HomeBoxTop = styled(Div)`
 
-  ::after {
-    cursor: pointer;
-  }
+`
+const HomeBoxBottom = styled(Div)`
+   
+`
 
-  &::before {
-    content: 'HOME';
-    transform-origin: top;
-  }
-  &::after {
-    content: 'HOME';
-    transform-origin: bottom;
-  }
+const Homebefore = styled.span`
+  position: absolute;
+  display: block;
+  transform: translateY(-4%);
+`;
+const HomeAfter = styled.span`
+  position: absolute;
+  display: block;
+  transform: translateY(-54%);
 `;
 
 export default function WebCss() {
   return (
     <PageContainer>
-      <HOME></HOME>
+      <HomeBoxTop>
+      <Homebefore>HOME</Homebefore>
+      </HomeBoxTop>
+      <HomeBoxBottom>
+        <HomeAfter>HOME</HomeAfter>
+      </HomeBoxBottom>
     </PageContainer>
   );
 }

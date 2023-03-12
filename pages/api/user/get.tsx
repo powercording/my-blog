@@ -9,7 +9,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
   const user = await client.user.findUnique({
     where: {
       email: email + '',
-    },
+    }, 
   });
 
   if (user) {
