@@ -5,6 +5,7 @@ interface ConstValue {
   ENTER_EMAIL: string;
   ENTER_PASSWORD: string;
   EMAIL_EXIST: string;
+  EMAIL_NO_EXIST: string;
   [key: string]: any;
 }
 
@@ -16,4 +17,5 @@ export const CONST: ConstValue = {
   ENTER_EMAIL: '이메일을 입력해 주세요.',
   ENTER_PASSWORD: '비밀번호를 입력해 주세요.',
   EMAIL_EXIST: '이미 존재하는 이메일 입니다.',
+  EMAIL_NO_EXIST: '회원가입되어있지 않은 이메일 입니다.',
 };

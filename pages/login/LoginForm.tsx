@@ -4,7 +4,6 @@ import { FieldValues } from 'react-hook-form/dist/types';
 import useDebounce from '@hooks/useDebounce';
 import tw from 'tailwind-styled-components';
 import Input from '@components/Input';
-import WelcomeJoin from '@components/WelcomeJoin';
 import useMutate from '@libs/client/useMutate';
 import { CONST } from '@libs/constant/CONST';
 import { useRouter } from 'next/router';
@@ -49,11 +48,10 @@ const InfoMessage = tw.p`
 text-xs text-white mt-1 ml-2
 `;
 
-export default function JoinForm() {
+export default function LoginForm() {
   const [emailOk, setEmailOk] = useState(false);
   const [refuse, setRefuse] = useState<string | null>(null);
   const [emailDebounce, debounceLoading, timer] = useDebounce(600);
-  const [Greeting, animationEnd] = WelcomeJoin();
   const [userJoin, { data, loading }, joinDataReset] = useMutate('api/join');
   const [confirm, { data: confirmResult, loading: confirmLoading }] =
     useMutate('api/join/confirm');
@@ -82,7 +80,8 @@ export default function JoinForm() {
   const handleJoin = async (formData: FieldValues) => {
     if (loading) return;
     const loginEmail = formData;
-    loginEmail.type = "join"
+    loginEmail.type = "login"
+  
     await userJoin(formData);
     setTimeout(() => {
       setFocus('payload');
@@ -96,12 +95,12 @@ export default function JoinForm() {
 
   //아래 나열된 조건식을 좀 줄여보기.
   const setFeedback = (user: Object | null) => {
-    if (user) {
+    if (!user) {
       console.log(user);
-      setRefuse(CONST.EMAIL_EXIST);
+      setRefuse(CONST.EMAIL_NO_EXIST);
       resetState();
     }
-    if (!user) {
+    if (user) {
       setEmailOk(true);
       setRefuse(null);
       setTimeout(() => {
@@ -132,11 +131,10 @@ export default function JoinForm() {
 
   return (
     <JoinFormContainerLargeScreen>
-      <Greeting></Greeting>
       <JoinFormRow
         onSubmit={data?.ok ? handleSubmit(onSubmit) : handleSubmit(handleJoin)}
       >
-        <InputContainer $show={animationEnd}>
+        <InputContainer $show={true}>
           <Input
             onClick={toggleDisabled}
             name="email"
@@ -183,8 +181,8 @@ export default function JoinForm() {
           {loading
             ? 'loading....'
             : data?.ok
-            ? '인증하기 (가입완료)'
-            : '회원가입'}
+            ? '로그인'
+            : '일회용 비밀번호 받기'}
         </Button>
       </JoinFormRow>
     </JoinFormContainerLargeScreen>
