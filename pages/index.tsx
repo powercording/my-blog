@@ -17,7 +17,7 @@ export default function Home() {
 
   return (
     <Container>
-      <div>dds</div>
+      <div>메인페이지</div>
     </Container>
   );
 }

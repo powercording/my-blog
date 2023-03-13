@@ -33,13 +33,19 @@ export default function Layout({ children }: LayoutProps) {
         menuState={open}
         setMenuState={setOpen}
       >
-        <MenuList>about me</MenuList>
+        <Link href="about">
+          <MenuList>about me</MenuList>
+        </Link>
         <MenuList>blabla</MenuList>
         <Link href="webcss">
           <MenuList>css</MenuList>
         </Link>
-        <MenuList>animation</MenuList>
-        <MenuList>code</MenuList>
+        <Link href="animation">
+          <MenuList>animation</MenuList>
+        </Link>
+        <Link href="code">
+          <MenuList>code</MenuList>
+        </Link>
       </MenuBar>
       <ContentArea>{children}</ContentArea>
     </Container>

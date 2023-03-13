@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import tw from 'tailwind-styled-components';
-import JoinForm from './Joinform';
-import LoginForm from './LoginForm';
+import JoinForm from '../../components/login/Joinform';
+import LoginForm from '../../components/login/LoginForm';
 
 const LoginContainer = tw.div`
   flex flex-col h-screen relative 
@@ -13,7 +13,9 @@ flex flex-col justify-center items-center
 w-full
 h-[50%]
 ${props =>
-  props.$loginClick === true ? 'h-full z-10 justify-start-start' : 'group cursor-pointer'}
+  props.$loginClick === true
+    ? 'h-full z-10 justify-start-start'
+    : 'group cursor-pointer'}
 ${props => (props.$loginClick === false ? 'invisible' : '')}
 `;
 const LoginBox = tw(LoginLayOut)`
@@ -47,7 +49,7 @@ export default function Login() {
     setJoinClick(() => true);
   };
 
-  const handleReset = () => {
+  const handleClickReset = () => {
     setLoginClick(null);
     setJoinClick(null);
   };
@@ -63,7 +65,7 @@ export default function Login() {
         {joinClick && <JoinForm></JoinForm>}
       </JoinBox>
       {(loginClick || joinClick) && (
-        <ResetButton type="button" onClick={handleReset}>
+        <ResetButton type="button" onClick={handleClickReset}>
           돌아가기
         </ResetButton>
       )}
